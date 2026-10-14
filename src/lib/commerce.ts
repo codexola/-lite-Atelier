@@ -1,6 +1,7 @@
 import { createHash, randomBytes } from 'node:crypto';
 import Stripe from 'stripe';
 import { db } from './db';
+import { wornImage } from './product-media';
 import { checkoutSchema, shippingCost } from './domain';
 import { HttpError, type User } from './auth';
 import { sendMail } from './mail';
@@ -77,7 +78,10 @@ export async function checkout(input: CheckoutInput, user: User | null) {
           ...item,
           name: p.name,
           price: Number(p.price),
-          image: p.image,
+          image: wornImage(
+            { slug: String(p.slug), image: String(p.image) },
+            item.color,
+          ),
         });
         if (liveCommerce())
           await tx.execute({

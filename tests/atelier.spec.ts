@@ -393,7 +393,14 @@ test('landing and key forms pass automated accessibility checks and cart traps f
 }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Solo esenciales' }).click();
-  for (const url of ['/', '/cuenta', '/contacto', '/identidad']) {
+  for (const url of [
+    '/',
+    '/cuenta',
+    '/contacto',
+    '/identidad',
+    '/colecciones',
+    '/producto/blazer-noir',
+  ]) {
     await page.goto(url);
     const result = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
@@ -607,4 +614,129 @@ test('administrator UI exposes role-protected inventory, content, messages and m
   await expect(
     page.getByRole('heading', { name: 'Las personas detrás del atelier.' }),
   ).toBeVisible();
+});
+
+test('worn gallery preserves angles across colors, zoom follows the pointer, and selected size/color reach the basket', async ({
+  page,
+}) => {
+  await page.goto('/producto/blazer-noir');
+  await page.getByRole('button', { name: 'Solo esenciales' }).click();
+  const image = page.locator('.fit-main-image');
+  await expect(image).toHaveAttribute('alt', /Noir.*frente.*en modelo/);
+  await page
+    .getByRole('button', { name: 'Ver vista Perfil', exact: true })
+    .click();
+  await expect(image).toHaveAttribute('alt', /perfil/);
+  await page.getByRole('button', { name: 'Color Ivory', exact: true }).click();
+  await expect(image).toHaveAttribute('alt', /Ivory.*perfil/);
+  await page
+    .getByRole('button', { name: 'Ver vista Espalda', exact: true })
+    .click();
+  await expect(image).toHaveAttribute('alt', /Ivory.*espalda/);
+  await page.getByRole('button', { name: 'L', exact: true }).click();
+  await expect(page.locator('.fit-measurements')).toContainText('Ivory / L');
+  await expect(page.locator('.fit-measurements')).toContainText('94–100');
+  await page.locator('.fit-main').hover({ position: { x: 90, y: 170 } });
+  await expect(page.locator('.fit-main')).toHaveClass(/is-hovering/);
+  await expect
+    .poll(() => image.evaluate((el) => getComputedStyle(el).transform))
+    .not.toBe('matrix(1, 0, 0, 1, 0, 0)');
+  const origin = await image.evaluate(
+    (el) => (el as HTMLElement).style.transformOrigin,
+  );
+  await page.locator('.fit-main').hover({ position: { x: 180, y: 300 } });
+  expect(
+    await image.evaluate((el) => (el as HTMLElement).style.transformOrigin),
+  ).not.toBe(origin);
+  await page.getByRole('heading', { name: 'Blazer Noir', exact: true }).hover();
+  await expect(page.locator('.fit-main')).not.toHaveClass(/is-hovering/);
+  await page
+    .getByRole('button', { name: 'Ampliar imagen de la pieza' })
+    .click();
+  await page.getByRole('button', { name: 'Aumentar zoom' }).click();
+  const accessibility = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+    .analyze();
+  expect(
+    accessibility.violations.map((v) => ({
+      id: v.id,
+      targets: v.nodes.map((n) => n.target),
+    })),
+  ).toEqual([]);
+  await expect(page.getByRole('dialog')).toContainText('150%');
+  await page
+    .getByRole('button', { name: 'Parte superior', exact: true })
+    .click();
+  await page
+    .getByRole('button', { name: 'Vista siguiente', exact: true })
+    .click();
+  await expect(page.getByRole('dialog')).toContainText('Frente · Ivory');
+  await page.keyboard.press('Escape');
+  await expect(
+    page.getByRole('button', { name: 'Ampliar imagen de la pieza' }),
+  ).toBeFocused();
+  await page.getByRole('button', { name: 'AÑADIR A MI SELECCIÓN' }).click();
+  await page.getByRole('link', { name: 'Ver mi selección' }).click();
+  await expect(page.locator('.cart-row').first()).toContainText('Ivory');
+  const cart = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('atelier-cart') || '[]'),
+  );
+  expect(cart[0]).toMatchObject({
+    size: 'L',
+    color: 'Ivory',
+    image: '/images/products/blazer-noir/ivory-front.webp',
+  });
+});
+
+test('store color previews and garment-only toggle retain the selected variant', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/colecciones');
+  await page.getByRole('button', { name: 'Solo esenciales' }).click();
+  await page.getByRole('button', { name: 'La pieza', exact: true }).click();
+  const first = page.locator('.product-card').first();
+  await expect(first.locator('.product-image img')).toHaveAttribute(
+    'alt',
+    /Noir/,
+  );
+  await page.getByRole('button', { name: 'En modelo', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Ver Blazer Noir en Taupe', exact: true })
+    .click();
+  await expect(first.locator('.product-image img')).toHaveAttribute(
+    'alt',
+    /Taupe.*en modelo/,
+  );
+  await first
+    .getByRole('link', { name: 'Ver Blazer Noir', exact: true })
+    .click();
+  await expect(page.locator('.fit-main-image')).toHaveAttribute('alt', /Taupe/);
+  for (const slug of [
+    'blazer-noir',
+    'top-lumiere',
+    'pantalon-atelier',
+    'vestido-silhouette',
+    'blazer-ecru',
+    'camisa-origine',
+  ]) {
+    for (const color of ['noir', 'ivory', 'taupe'])
+      for (const angle of ['front', 'side', 'back']) {
+        const response = await request.get(
+          `/images/products/${slug}/${color}-${angle}.webp`,
+        );
+        expect(response.status(), `${slug}/${color}-${angle}`).toBe(200);
+        expect(response.headers()['content-type']).toContain('image/webp');
+      }
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page
+    .getByRole('button', { name: 'Ampliar imagen de la pieza' })
+    .click();
+  await page.getByRole('button', { name: 'Aumentar zoom' }).click();
+  await page
+    .getByRole('button', { name: 'Parte inferior', exact: true })
+    .click();
+  await expect(page.getByRole('dialog')).toContainText('150%');
+  await page.getByRole('button', { name: 'Cerrar imagen ampliada' }).click();
 });

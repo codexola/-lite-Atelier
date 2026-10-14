@@ -2,18 +2,18 @@
 
 Validated on 14 October 2026 against the local production build with Node.js 24.19.0. External merchant/email/database services were not configured; their real connectivity and production operation remain launch checks.
 
-| Check                                | Result                                                                                                                  |
-| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
-| Frozen dependency install (`npm ci`) | Passed; repeatable without changing source or data                                                                      |
-| TypeScript / production build        | Passed                                                                                                                  |
-| Domain tests                         | 7 passed; no failures or skipped tests                                                                                  |
-| Production-browser suite             | 11 passed; no failures or skipped tests                                                                                 |
-| Responsive overflow                  | Passed at 360, 390, 768, 1024 and 1440 px for home, catalog, product, creator, account and community                    |
-| Automated accessibility              | No WCAG A/AA violations in the scanned home, account, contact and identity pages; dialog focus wrapping/Escape verified |
-| Local database readiness             | 6 conceptual products / 90 variants; health reports database/auth ready, preview commerce                               |
-| Local backup restore                 | Consistent snapshot created; principal restored table counts matched                                                    |
-| Production dependency audit          | 0 vulnerabilities reported by `npm audit --omit=dev`                                                                    |
-| Formatting                           | Passed                                                                                                                  |
+| Check                                | Result                                                                                                                                    |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Frozen dependency install (`npm ci`) | Passed; repeatable without changing source or data                                                                                        |
+| TypeScript / production build        | Passed                                                                                                                                    |
+| Domain tests                         | 8 passed; no failures or skipped tests                                                                                                    |
+| Production-browser suite             | 13 passed; no failures or skipped tests                                                                                                   |
+| Responsive overflow                  | Passed at 360, 390, 768, 1024 and 1440 px for home, catalog, product, creator, account and community                                      |
+| Automated accessibility              | No WCAG A/AA violations in the scanned home, account, contact, identity, catalog and product pages; dialog focus wrapping/Escape verified |
+| Local database readiness             | 6 conceptual products / 90 variants; health reports database/auth ready, preview commerce                                                 |
+| Local backup restore                 | Consistent snapshot created; principal restored table counts matched                                                                      |
+| Production dependency audit          | 0 vulnerabilities reported by `npm audit --omit=dev`                                                                                      |
+| Formatting                           | Passed                                                                                                                                    |
 
 The browser suite checks catalog filtering and public-page responses; size selection and cart persistence; preview checkout and protected confirmation; four-question identity recommendations; account registration/favorites/designs; origin and consent validation; server prices and simultaneous idempotent requests; moderation/roles/messages/CMS; responsive widths and actual image loading; accessibility and dialog focus; signed payment fixture settlement, duplicate callbacks, wrong totals, forged signatures and exactly-once inventory release; and administrator UI/variant inventory access.
 
@@ -46,3 +46,11 @@ On 14 October 2026, https://liteatelierdemo.vercel.app/ and `/co-creacion` both 
 The sample-led redesign adds an original black/ivory campaign photograph, a three-part landing experience with an interactive silhouette selector, studio handoff via a validated model query, visual studio thumbnails and numbered steps, product image enlargement with Escape/focus restoration, collection/community editorial headers, and account navigation cards. The production build, formatting check, and complete browser suite passed: **11 tests**, including the new landing-to-studio handoff and enlarged-image checks. Existing account, checkout, moderation, inventory, responsive and accessibility checks remain enabled.
 
 A new local emulated-mobile Lighthouse run of the redesigned landing reported Performance **91**, Accessibility **100**, Best Practices **100**, CLS **0.004**, TBT **100 ms**, and LCP **3.4 seconds**. The wordmark accessible-name advisory was corrected afterwards. These are laboratory results, not field metrics. Preview SEO remains intentionally restricted.
+
+## Modern wardrobe and fit gallery
+
+The complete production browser suite passed **13 tests**, with **8 domain/media tests** passing. New checks cover front/profile/back selection, preserving the active angle across color changes, pointer-relative hover zoom and its reset, enlarged-view zoom and angle navigation, Escape/focus restoration, mobile zoom controls, collection presentation switching, selected-color URL handoff, selected size/color/image in the basket, and HTTP 200/image MIME responses for all 54 exported worn images. Accessibility scans include the catalog, product page and enlarged viewer. A collapsed image-link hit area discovered by the store test was fixed; the test then passed without forced clicks or disabled assertions.
+
+Eighteen original generated triptychs provide six garments × three colors × three angles. The 54 WebP exports occupy approximately 2.1 MB. Campaign/editorial imagery and original garment-only photographs are retained. Size selection exposes the same orientative body measurements as the existing size guide; generated images do not claim to simulate a particular customer's fit or changes in garment size. Existing custom/approved product photographs are preserved when they differ from a conceptual reference. Availability reads saved variant inventory, and checkout remains authoritative.
+
+The live authentication check was retried after the user's reported Production redeployment and still returned `auth:false` before this update was published. The updated health response distinguishes `missing` from `too-short` without disclosing the secret or its value. API JSON responses explicitly use `Cache-Control: no-store`. Final live deployment readiness must be checked after publication.

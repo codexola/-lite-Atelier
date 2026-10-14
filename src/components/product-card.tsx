@@ -2,25 +2,42 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Heart, ArrowUpRight } from 'lucide-react';
-import { type Product, money } from '@/lib/catalog';
+import { productMedia, wornImage } from '@/lib/product-media';
+import { type Product, money, colors } from '@/lib/catalog';
 import { api, useAtelier } from './atelier-provider';
 import { useState } from 'react';
 export function ProductCard({
   product: p,
   index = 0,
+  presentation = 'model',
 }: {
   product: Product;
   index?: number;
+  presentation?: 'model' | 'piece';
 }) {
+  const [color, setColor] = useState(productMedia(p)?.color || 'Noir');
+  const reference = productMedia(p);
+  const image =
+    presentation === 'model'
+      ? wornImage(p, color)
+      : color === reference?.color
+        ? p.image
+        : wornImage(p, color);
+  const href = '/producto/' + p.slug + '?color=' + encodeURIComponent(color);
   const [saved, setSaved] = useState(false);
   const { notify } = useAtelier();
   return (
     <article className="product-card">
       <div className="product-image">
-        <Link href={'/producto/' + p.slug} aria-label={'Ver ' + p.name}>
+        <Link href={href} aria-label={'Ver ' + p.name}>
           <Image
-            src={p.image}
-            alt={p.name + ' · ' + p.category}
+            src={image}
+            alt={
+              p.name +
+              ' · ' +
+              color +
+              (presentation === 'model' && reference ? ' · en modelo' : '')
+            }
             fill
             sizes="(max-width: 600px) 46vw, (max-width: 1000px) 31vw, 25vw"
           />
@@ -51,12 +68,12 @@ export function ProductCard({
         >
           <Heart size={17} fill={saved ? 'currentColor' : 'none'} />
         </button>
-        <Link className="product-discover" href={'/producto/' + p.slug}>
+        <Link className="product-discover" href={href}>
           DESCUBRIR LA PIEZA <ArrowUpRight size={14} />
         </Link>
       </div>
       <div className="product-caption">
-        <Link href={'/producto/' + p.slug}>
+        <Link href={href}>
           <h3>{p.name}</h3>
           <span>{p.category}</span>
         </Link>
@@ -65,11 +82,28 @@ export function ProductCard({
           <small>COP · {p.approved ? '' : 'concepto'}</small>
         </span>
       </div>
-      <div className="swatches" aria-hidden="true">
-        <i style={{ background: '#272727' }} />
-        <i style={{ background: '#e2dbcd' }} />
-        <i style={{ background: '#93816d' }} />
-      </div>
+      {reference && (
+        <div className="card-variant-row">
+          <div
+            className="card-color-options"
+            role="group"
+            aria-label={'Colores de ' + p.name}
+          >
+            {colors.map((c) => (
+              <button
+                key={c.name}
+                title={c.name}
+                aria-label={'Ver ' + p.name + ' en ' + c.name}
+                aria-pressed={color === c.name}
+                className={color === c.name ? 'selected' : ''}
+                style={{ background: c.hex }}
+                onClick={() => setColor(c.name)}
+              />
+            ))}
+          </div>
+          <span>{color} / XS—XL</span>
+        </div>
+      )}
     </article>
   );
 }

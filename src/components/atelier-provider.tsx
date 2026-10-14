@@ -1,4 +1,5 @@
 'use client';
+import { wornImage } from '@/lib/product-media';
 import {
   createContext,
   useContext,
@@ -110,7 +111,7 @@ export function AtelierProvider({ children }: { children: ReactNode }) {
           productId: p.id,
           slug: p.slug,
           name: p.name,
-          image: p.image,
+          image: wornImage(p, color),
           price: p.price,
           size,
           color,
@@ -225,7 +226,14 @@ export function AtelierProvider({ children }: { children: ReactNode }) {
                       <img src={i.image} alt={i.name} />
                       <div>
                         <Link
-                          href={'/producto/' + i.slug}
+                          href={
+                            '/producto/' +
+                            i.slug +
+                            '?color=' +
+                            encodeURIComponent(i.color) +
+                            '&talla=' +
+                            encodeURIComponent(i.size)
+                          }
                           onClick={() => setCartOpen(false)}
                         >
                           {i.name}

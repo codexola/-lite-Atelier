@@ -46,7 +46,16 @@ export function CartScreen({ settings }: { settings: Settings }) {
                   key={i.productId + i.color + i.size}
                   style={{ gridTemplateColumns: '100px 1fr 25px' }}
                 >
-                  <Link href={'/producto/' + i.slug}>
+                  <Link
+                    href={
+                      '/producto/' +
+                      i.slug +
+                      '?color=' +
+                      encodeURIComponent(i.color) +
+                      '&talla=' +
+                      encodeURIComponent(i.size)
+                    }
+                  >
                     <img
                       src={i.image}
                       alt={i.name}
@@ -54,7 +63,18 @@ export function CartScreen({ settings }: { settings: Settings }) {
                     />
                   </Link>
                   <div>
-                    <Link href={'/producto/' + i.slug}>{i.name}</Link>
+                    <Link
+                      href={
+                        '/producto/' +
+                        i.slug +
+                        '?color=' +
+                        encodeURIComponent(i.color) +
+                        '&talla=' +
+                        encodeURIComponent(i.size)
+                      }
+                    >
+                      {i.name}
+                    </Link>
                     <p className="muted small-text">
                       Color {i.color} · Talla {i.size}
                     </p>

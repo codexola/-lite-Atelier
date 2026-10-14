@@ -137,3 +137,25 @@ test('Wompi order reference is fetched from the authoritative API, not unsigned 
   assert.equal(requested, 'https://sandbox.wompi.co/v1/transactions/txn-safe');
   assert.equal(result.reference, actualReference);
 });
+
+test('all preview garments have complete front, side and back media for every color, and custom photos keep their own reference', async () => {
+  const { products, colors } = await import('../src/lib/catalog');
+  const { productMedia, wornImage } = await import('../src/lib/product-media');
+  const { existsSync } = await import('node:fs');
+  for (const product of products) {
+    assert.ok(productMedia(product));
+    for (const color of colors)
+      for (const angle of ['front', 'side', 'back']) {
+        assert.ok(
+          existsSync('public' + wornImage(product, color.name, angle)),
+          `${product.slug} ${color.name} ${angle}`,
+        );
+      }
+  }
+  const custom = {
+    ...products[0],
+    image: '/images/custom-approved-product.webp',
+  };
+  assert.equal(productMedia(custom), null);
+  assert.equal(wornImage(custom, 'Ivory'), custom.image);
+});

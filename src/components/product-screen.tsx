@@ -1,78 +1,39 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import { ArrowUpRight, Heart, Truck, ChevronRight } from 'lucide-react';
+import { ProductGallery } from './product-gallery';
 import {
-  ArrowUpRight,
-  Heart,
-  Truck,
-  ChevronRight,
-  Maximize2,
-  X,
-} from 'lucide-react';
+  productMedia,
+  sizeMeasurements,
+  type ProductVariant,
+} from '@/lib/product-media';
 import { type Product, colors, sizes, money } from '@/lib/catalog';
-import { useDialog } from './use-dialog';
 import { useAtelier, api, track } from './atelier-provider';
-export function ProductScreen({ product: p }: { product: Product }) {
+export function ProductScreen({
+  product: p,
+  variants = [],
+}: {
+  product: Product;
+  variants?: ProductVariant[];
+}) {
   const { add, notify } = useAtelier();
   const [size, setSize] = useState('');
-  const [color, setColor] = useState('Noir');
+  const [color, setColor] = useState(productMedia(p)?.color || 'Noir');
   const [saved, setSaved] = useState(false);
-  const [zoom, setZoom] = useState(false);
-  useDialog(zoom, '.piece-lightbox', () => setZoom(false));
   useEffect(() => {
     track('product_view');
+    const initial = new URLSearchParams(window.location.search).get('color');
+    if (initial && colors.some((c) => c.name === initial)) setColor(initial);
+    const initialSize = new URLSearchParams(window.location.search).get(
+      'talla',
+    );
+    if (initialSize && sizes.some((s) => s === initialSize))
+      setSize(initialSize);
   }, []);
   return (
     <div className="product-detail">
-      <div className="product-gallery">
-        <span className="gallery-index">THE PIECE / 01</span>
-        <button
-          className="gallery-zoom"
-          aria-label="Ampliar imagen de la pieza"
-          onClick={() => setZoom(true)}
-        >
-          <Maximize2 size={17} />
-        </button>
-        <Image
-          src={p.image}
-          alt={p.name + ', vista editorial de la pieza'}
-          fill
-          priority
-          sizes="(max-width: 600px) 88vw, 48vw"
-        />
-        <span className="gallery-caption">
-          ÉLITE ATELIER / {p.collection.toUpperCase()}
-        </span>
-      </div>
-      {zoom && (
-        <div className="piece-lightbox-backdrop" onClick={() => setZoom(false)}>
-          <div
-            className="piece-lightbox"
-            role="dialog"
-            aria-modal="true"
-            aria-label={'Imagen ampliada de ' + p.name}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className="lightbox-close"
-              aria-label="Cerrar imagen ampliada"
-              onClick={() => setZoom(false)}
-            >
-              <X size={22} />
-            </button>
-            <Image
-              src={p.image}
-              alt={p.name + ' · detalle conceptual'}
-              fill
-              sizes="90vw"
-            />
-            <span>
-              {p.name} / {p.collection}
-            </span>
-          </div>
-        </div>
-      )}
+      <ProductGallery product={p} color={color} />
       <div className="product-info">
         <div className="breadcrumbs">
           <Link href="/">Inicio</Link>
@@ -107,7 +68,16 @@ export function ProductScreen({ product: p }: { product: Product }) {
               style={{ background: c.hex }}
               aria-label={'Color ' + c.name}
               aria-pressed={c.name === color}
-              onClick={() => setColor(c.name)}
+              onClick={() => {
+                setColor(c.name);
+                if (
+                  variants.length > 0 &&
+                  !variants.some(
+                    (v) => v.color === c.name && v.size === size && v.stock > 0,
+                  )
+                )
+                  setSize('');
+              }}
             />
           ))}
         </div>
@@ -123,18 +93,63 @@ export function ProductScreen({ product: p }: { product: Product }) {
               key={s}
               className={size === s ? 'selected' : ''}
               aria-pressed={size === s}
+              disabled={
+                variants.length > 0 &&
+                !variants.some(
+                  (v) => v.color === color && v.size === s && v.stock > 0,
+                )
+              }
               onClick={() => setSize(s)}
             >
               {s}
             </button>
           ))}
         </div>
+        {size && (
+          <div className="fit-measurements" aria-live="polite">
+            <span>
+              Tu selección{' '}
+              <strong>
+                {color} / {size}
+              </strong>
+            </span>
+            <div>
+              {[
+                ['Pecho', sizeMeasurements[size].chest],
+                ['Cintura', sizeMeasurements[size].waist],
+                ['Cadera', sizeMeasurements[size].hip],
+              ].map(([label, value]) => (
+                <span key={label}>
+                  <small>{label}</small>
+                  {value}
+                  <small>cm</small>
+                </span>
+              ))}
+            </div>
+            <small>
+              Medidas corporales orientativas. La fotografía no simula cambios
+              de talla.
+            </small>
+          </div>
+        )}
         <div className="product-actions">
           <button
             className="btn"
             onClick={() => {
               if (!size) {
                 notify('Selecciona una talla para añadir la pieza.', true);
+                return;
+              }
+              if (
+                variants.length > 0 &&
+                !variants.some(
+                  (v) => v.color === color && v.size === size && v.stock > 0,
+                )
+              ) {
+                notify(
+                  'Esta variante está agotada. Selecciona otra combinación.',
+                  true,
+                );
                 return;
               }
               add(p, size, color);

@@ -28,7 +28,10 @@ import {
 export const runtime = 'nodejs';
 const text = (min = 1, max = 500) => z.string().trim().min(min).max(max);
 function json(value: unknown, status = 200) {
-  return NextResponse.json(value, { status });
+  return NextResponse.json(value, {
+    status,
+    headers: { 'Cache-Control': 'no-store' },
+  });
 }
 function error(e: unknown) {
   if (e instanceof z.ZodError)
@@ -101,6 +104,11 @@ export async function GET(
           status: ready ? 'ok' : 'configuration-required',
           database: true,
           auth: authReady,
+          authConfiguration: authReady
+            ? 'ready'
+            : process.env.AUTH_SECRET
+              ? 'too-short'
+              : 'missing',
           commerce: liveCommerce() ? 'live' : 'preview',
           payment: paymentReady,
         },

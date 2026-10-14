@@ -1,4 +1,4 @@
-import { getProducts } from '@/lib/db';
+import { getProducts, getProductVariants } from '@/lib/db';
 import { notFound } from 'next/navigation';
 import { ProductScreen } from '@/components/product-screen';
 import { ProductCard } from '@/components/product-card';
@@ -24,7 +24,11 @@ export default async function Product({
   if (!p) notFound();
   return (
     <>
-      <ProductScreen product={p} />
+      <ProductScreen
+        key={p.id}
+        product={p}
+        variants={await getProductVariants(p.id)}
+      />
       <section
         className="section"
         style={{ paddingTop: 30, borderTop: '1px solid var(--line)' }}

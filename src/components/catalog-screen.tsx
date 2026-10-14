@@ -4,6 +4,7 @@ import { SlidersHorizontal, X, Search } from 'lucide-react';
 import { ProductCard } from './product-card';
 import type { Product } from '@/lib/catalog';
 export function CatalogScreen({ products }: { products: Product[] }) {
+  const [presentation, setPresentation] = useState<'model' | 'piece'>('model');
   const [category, setCategory] = useState('Todas');
   const [collection, setCollection] = useState('Todas');
   const [q, setQ] = useState('');
@@ -35,6 +36,27 @@ export function CatalogScreen({ products }: { products: Product[] }) {
     );
   return (
     <div className="page-container">
+      <div className="shop-view-bar">
+        <span>
+          THE WARDROBE / 01{' '}
+          <small>Diseño que se vive. Detalles que se sienten.</small>
+        </span>
+        <div role="group" aria-label="Presentación de la colección">
+          {[
+            ['model', 'En modelo'],
+            ['piece', 'La pieza'],
+          ].map(([id, label]) => (
+            <button
+              key={id}
+              aria-pressed={presentation === id}
+              className={presentation === id ? 'active' : ''}
+              onClick={() => setPresentation(id as 'model' | 'piece')}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
       <div className="catalog-bar">
         <div className="catalog-tabs">
           {['Todas', 'Sastrería', 'Esenciales', 'Vestidos'].map((c) => (
@@ -128,7 +150,9 @@ export function CatalogScreen({ products }: { products: Product[] }) {
       )}
       <div className="product-grid">
         {shown.length ? (
-          shown.map((p) => <ProductCard key={p.id} product={p} />)
+          shown.map((p) => (
+            <ProductCard key={p.id} product={p} presentation={presentation} />
+          ))
         ) : (
           <div className="empty-state">
             <Search size={27} />

@@ -142,3 +142,17 @@ export async function audit(userId: string, action: string, target: string) {
     args: [crypto.randomUUID(), userId, action, target],
   });
 }
+
+export async function getProductVariants(productId: string) {
+  if (!databaseConfigured()) return [];
+  const c = await db();
+  const result = await c.execute({
+    sql: 'SELECT size,color,stock FROM variants WHERE product_id=?',
+    args: [productId],
+  });
+  return result.rows.map((row) => ({
+    size: String(row.size),
+    color: String(row.color),
+    stock: Number(row.stock),
+  }));
+}

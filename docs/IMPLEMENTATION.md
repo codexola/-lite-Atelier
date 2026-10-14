@@ -47,3 +47,11 @@ See VALIDATION.md for executed checks and their boundaries; DEPLOYMENT.md for th
 ## Sample-led editorial redesign
 
 The revised visual direction follows the supplied campaign sample with a black/ivory couple portrait, architectural shadows, champagne typography and a compact three-part platform showcase. This includes a functioning landing silhouette selector that carries the chosen model into co-creation; visual model thumbnails and numbered studio steps; keyboard-accessible enlarged product photography; image-led collection and community layouts; and account overview cards linked to the corresponding sections. Original campaign imagery remains conceptual. Shared page, form, product and checkout surfaces carry the same palette and spacing across the system. The redesign does not change stock, payment or manufacturing commitments.
+
+## Modern store and multi-angle garment viewing
+
+The current store combines original campaign, editorial and garment-only imagery with 54 coordinated worn-view images. Collection cards have interactive color previews and a model/garment presentation switch. Product pages have a labeled thumbnail rail beside the main photograph: front, profile, back and the original garment-only shot in its reference color. Color changes preserve the selected worn angle; switching away from the reference color safely changes a garment-only selection to the appropriate worn view.
+
+Fine-pointer hover zoom follows the pointer's location and resets when it leaves. The expanded viewer supplies zoom, previous/next angle and upper/center/lower detail controls for touch and keyboard users, with focus trapping and Escape restoration. Size selection changes orientative measurements and the variant saved to the cart. Variant inventory disables unavailable sizes, and the server still verifies stock and prices at checkout. Basket links preserve chosen color/size; stored order line images match the selected color. Custom product photos retain their own fallback and are not silently replaced by unrelated conceptual assets.
+
+Shared typography, page headings, product cards, controls and surfaces use a contemporary near-white/ink/sage treatment while keeping the Élite campaign palette and identity. All fit images are conceptual illustrations requiring commercial validation.
