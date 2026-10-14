@@ -1,0 +1,9 @@
+.next
+node_modules
+.data
+playwright-report
+test-results
+package-lock.json
+public/images
+
+next-env.d.ts
