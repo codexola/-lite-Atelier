@@ -13,12 +13,14 @@
     "admin:create": "tsx scripts/create-admin.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "db:backup": "tsx scripts/backup-db.ts"
+    "db:backup": "tsx scripts/backup-db.ts",
+    "postinstall": "node scripts/copy-pose-assets.mjs"
   },
   "dependencies": {
     "@fontsource/cormorant-garamond": "^5.3.0",
     "@fontsource/dm-sans": "^5.3.0",
     "@libsql/client": "^0.15.15",
+    "@mediapipe/pose": "^0.5.1675469404",
     "jose": "^6.1.0",
     "lucide-react": "^0.468.0",
     "next": "^16.0.0",

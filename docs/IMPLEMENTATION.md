@@ -12,7 +12,7 @@ The current user's instruction authorizes implementation and deployment of the a
 | -------------- | -------------------------------------------------------------------------------------------------------------- |
 | Landing        | `/`, editorial hero, featured products, collections, manifesto, co-creation, quiz, journal, newsletter         |
 | Commerce       | `/colecciones`, `/producto/[slug]`, `/guia-tallas`, `/carrito`, `/checkout`, `/pedido/[id]`                    |
-| Brand          | `/manifiesto`, `/journal`, `/journal/[slug]`, `/contacto`, `/ayuda`                                            |
+| Brand          | `/universo`, `/manifiesto`, `/journal`, `/journal/[slug]`, `/contacto`, `/ayuda`                               |
 | Identity       | `/identidad`, four questions, deterministic recommendation, optional subscription                              |
 | Creation       | `/co-creacion`, saved material/color/detail/size specifications, private or reviewed sharing                   |
 | Community      | `/comunidad`, editorial posts, moderated member stories/comments/designs, likes/votes/report channel           |
@@ -37,12 +37,20 @@ Visual system: charcoal, warm ivory, champagne; Cormorant Garamond and DM Sans s
 - Payments and emails have implemented adapters but require real merchant/email settings and sandbox verification; fixture tests do not establish provider readiness.
 - The app does not assert product certifications, real stock, shipping promises or testimonials that were absent from the materials.
 - Co-creation is a specification/proposal workflow, not a manufacturing engine or AI-generated garment preview.
-- Photo-based AI try-on was described as research/future work in the source plan. No imitation upload flow is presented as a working AI service.
+- The user explicitly prioritizes the camera preview. Real MediaPipe body tracking runs locally; its experimental 2D overlay does not reproduce physical cloth, occlusion, exact size or photorealistic try-on. No hosted inference is claimed.
 - Colombia is the initial operating scope. Other languages, currencies, jurisdictional taxes and logistics require regional configuration and validation; the current app does not claim global fulfillment.
 - No advertising, influencer outreach, abandoned-cart marketing or bulk campaign is sent without provider configuration and consent/operational decisions.
 - Real refunds, delivery labels, production capacity and legal review belong to configured providers and the brand's operation.
 
 See VALIDATION.md for executed checks and their boundaries; DEPLOYMENT.md for the actual launch prerequisites.
+
+## Camera fitting and expanded wardrobe
+
+`/probador-virtual` loads self-hosted MediaPipe Pose models only after explicit camera activation or local photo selection. Live frames or photos are processed entirely in the browser. Smoothed shoulder/arm/hip/leg landmarks guide a transparent garment mesh; switching a garment updates the overlay. Size selection is handed to the basket, not inferred from the camera. A manual guide and visual adjustment controls provide a fallback. Camera tracks and inference resources are released on stop or navigation; the local photo is removed on stop. Downloads remain local and carry an experimental-preview label.
+
+The additive seed expands the conceptual catalog from six to 18 products across seven categories, with 150 saved variants. Original six products retain three colors; the 12 additions initially offer their photographed reference color. Thirty transparent cutouts and 90 worn views are supplied. Existing photography and custom catalog records are preserved. All materials, prices and imagery remain conceptual pending commercial approval.
+
+The landing and `/universo` give the existing environmental imagery dedicated architectural/textile/city stories. Glossy panels, pointer-responsive 3D tilt, floating Lab details and scroll movement share the editorial palette. Reduced-motion users see stable content, and text remains readable throughout movement. Mobile wardrobe controls scroll inside their own region.
 
 ## Sample-led editorial redesign
 
@@ -50,7 +58,7 @@ The revised visual direction follows the supplied campaign sample with a black/i
 
 ## Modern store and multi-angle garment viewing
 
-The current store combines original campaign, editorial and garment-only imagery with 54 coordinated worn-view images. Collection cards have interactive color previews and a model/garment presentation switch. Product pages have a labeled thumbnail rail beside the main photograph: front, profile, back and the original garment-only shot in its reference color. Color changes preserve the selected worn angle; switching away from the reference color safely changes a garment-only selection to the appropriate worn view.
+The current store combines original campaign, editorial and garment-only imagery with 90 coordinated worn-view images. Collection cards have interactive color previews and a model/garment presentation switch. Product pages have a labeled thumbnail rail beside the main photograph: front, profile, back and the original garment-only shot in its reference color. Color changes preserve the selected worn angle; switching away from the reference color safely changes a garment-only selection to the appropriate worn view.
 
 Fine-pointer hover zoom follows the pointer's location and resets when it leaves. The expanded viewer supplies zoom, previous/next angle and upper/center/lower detail controls for touch and keyboard users, with focus trapping and Escape restoration. Size selection changes orientative measurements and the variant saved to the cart. Variant inventory disables unavailable sizes, and the server still verifies stock and prices at checkout. Basket links preserve chosen color/size; stored order line images match the selected color. Custom product photos retain their own fallback and are not silently replaced by unrelated conceptual assets.
 

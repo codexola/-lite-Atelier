@@ -4,7 +4,12 @@ import Link from 'next/link';
 import { ArrowUpRight, X, Download, Plus } from 'lucide-react';
 import { useDialog } from './use-dialog';
 import { api, useAtelier } from './atelier-provider';
-import { type Product, money } from '@/lib/catalog';
+import {
+  type Product,
+  money,
+  productCategories,
+  products as previewProducts,
+} from '@/lib/catalog';
 import { statusLabels } from './account-screen';
 export function AdminScreen() {
   const [data, setData] = useState<any>(null);
@@ -671,15 +676,23 @@ export function AdminScreen() {
                 </label>
                 <label className="field">
                   <span>Categoría</span>
-                  <select name="category" defaultValue={editing.category}>
-                    {['Sastrería', 'Esenciales', 'Vestidos'].map((c) => (
+                  <select
+                    name="category"
+                    aria-label="Categoría"
+                    defaultValue={editing.category}
+                  >
+                    {productCategories.map((c) => (
                       <option key={c}>{c}</option>
                     ))}
                   </select>
                 </label>
                 <label className="field">
                   <span>Colección</span>
-                  <select name="collection" defaultValue={editing.collection}>
+                  <select
+                    name="collection"
+                    aria-label="Colección"
+                    defaultValue={editing.collection}
+                  >
                     {['Signature', 'Éditions', 'Origine'].map((c) => (
                       <option key={c}>{c}</option>
                     ))}
@@ -708,17 +721,20 @@ export function AdminScreen() {
                 </label>
                 <label className="field full">
                   <span>Imagen de la biblioteca</span>
-                  <select name="image" defaultValue={editing.image}>
-                    {[
-                      'blazer',
-                      'top',
-                      'trousers',
-                      'dress',
-                      'ivory-blazer',
-                      'shirt',
-                    ].map((i) => (
-                      <option key={i} value={'/images/' + i + '.webp'}>
-                        {i}
+                  <select
+                    name="image"
+                    aria-label="Imagen de la biblioteca"
+                    defaultValue={editing.image}
+                  >
+                    {Array.from(
+                      new Set([
+                        editing.image,
+                        ...previewProducts.map((p) => p.image),
+                      ]),
+                    ).map((image) => (
+                      <option key={image} value={image}>
+                        {previewProducts.find((p) => p.image === image)?.name ||
+                          image}
                       </option>
                     ))}
                   </select>

@@ -102,12 +102,14 @@ export function Footer({ mode }: { mode: string }) {
           <h3>EXPLORA</h3>
           <Link href="/colecciones">Las colecciones</Link>
           <Link href="/co-creacion">Tu atelier</Link>
+          <Link href="/probador-virtual">Tu probador virtual</Link>
           <Link href="/identidad">Descubre tu identidad</Link>
           <Link href="/comunidad">La comunidad</Link>
         </div>
         <div>
           <h3>LA MAISON</h3>
           <Link href="/manifiesto">Nuestro manifiesto</Link>
+          <Link href="/universo">Universo Atelier</Link>
           <Link href="/journal">Journal</Link>
           <Link href="/contacto">Contacto</Link>
           <Link href="/cuenta">Mi cuenta</Link>

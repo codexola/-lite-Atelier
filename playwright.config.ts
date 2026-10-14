@@ -16,7 +16,7 @@ export default defineConfig({
         (!process.env.GITHUB_ACTIONS && existsSync('/usr/bin/chromium')
           ? '/usr/bin/chromium'
           : undefined),
-      args: ['--no-sandbox'],
+      args: ['--no-sandbox', '--enable-unsafe-swiftshader'],
     },
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',

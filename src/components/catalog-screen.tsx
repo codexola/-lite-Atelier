@@ -59,7 +59,10 @@ export function CatalogScreen({ products }: { products: Product[] }) {
       </div>
       <div className="catalog-bar">
         <div className="catalog-tabs">
-          {['Todas', 'Sastrería', 'Esenciales', 'Vestidos'].map((c) => (
+          {[
+            'Todas',
+            ...Array.from(new Set(products.map((p) => p.category))),
+          ].map((c) => (
             <button
               key={c}
               className={category === c ? 'active' : ''}

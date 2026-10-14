@@ -2,6 +2,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Heart, ArrowUpRight } from 'lucide-react';
+import { productColors } from '@/lib/garment-assets';
 import { productMedia, wornImage } from '@/lib/product-media';
 import { type Product, money, colors } from '@/lib/catalog';
 import { api, useAtelier } from './atelier-provider';
@@ -15,7 +16,9 @@ export function ProductCard({
   index?: number;
   presentation?: 'model' | 'piece';
 }) {
-  const [color, setColor] = useState(productMedia(p)?.color || 'Noir');
+  const [color, setColor] = useState(
+    productMedia(p)?.color || productColors(p)[0],
+  );
   const reference = productMedia(p);
   const image =
     presentation === 'model'
@@ -27,7 +30,7 @@ export function ProductCard({
   const [saved, setSaved] = useState(false);
   const { notify } = useAtelier();
   return (
-    <article className="product-card">
+    <article className="product-card" data-tilt data-reveal>
       <div className="product-image">
         <Link href={href} aria-label={'Ver ' + p.name}>
           <Image
@@ -82,24 +85,26 @@ export function ProductCard({
           <small>COP · {p.approved ? '' : 'concepto'}</small>
         </span>
       </div>
-      {reference && (
+      {(reference || productColors(p).length === 1) && (
         <div className="card-variant-row">
           <div
             className="card-color-options"
             role="group"
             aria-label={'Colores de ' + p.name}
           >
-            {colors.map((c) => (
-              <button
-                key={c.name}
-                title={c.name}
-                aria-label={'Ver ' + p.name + ' en ' + c.name}
-                aria-pressed={color === c.name}
-                className={color === c.name ? 'selected' : ''}
-                style={{ background: c.hex }}
-                onClick={() => setColor(c.name)}
-              />
-            ))}
+            {colors
+              .filter((c) => productColors(p).includes(c.name))
+              .map((c) => (
+                <button
+                  key={c.name}
+                  title={c.name}
+                  aria-label={'Ver ' + p.name + ' en ' + c.name}
+                  aria-pressed={color === c.name}
+                  className={color === c.name ? 'selected' : ''}
+                  style={{ background: c.hex }}
+                  onClick={() => setColor(c.name)}
+                />
+              ))}
           </div>
           <span>{color} / XS—XL</span>
         </div>

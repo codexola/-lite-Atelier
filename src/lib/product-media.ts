@@ -16,6 +16,51 @@ const references: Record<string, { image: string; color: string }> = {
   'vestido-silhouette': { image: '/images/dress.webp', color: 'Noir' },
   'blazer-ecru': { image: '/images/ivory-blazer.webp', color: 'Ivory' },
   'camisa-origine': { image: '/images/shirt.webp', color: 'Ivory' },
+  'gabardina-pluie': {
+    image: '/images/garments/gabardina-pluie.webp',
+    color: 'Ivory',
+  },
+  'chaqueta-cuir': {
+    image: '/images/garments/chaqueta-cuir.webp',
+    color: 'Noir',
+  },
+  'bomber-urbain': {
+    image: '/images/garments/bomber-urbain.webp',
+    color: 'Taupe',
+  },
+  'abrigo-structure': {
+    image: '/images/garments/abrigo-structure.webp',
+    color: 'Taupe',
+  },
+  'chaleco-architecture': {
+    image: '/images/garments/chaleco-architecture.webp',
+    color: 'Noir',
+  },
+  'jersey-cashmere': {
+    image: '/images/garments/jersey-cashmere.webp',
+    color: 'Ivory',
+  },
+  'cardigan-studio': {
+    image: '/images/garments/cardigan-studio.webp',
+    color: 'Taupe',
+  },
+  'polo-meridian': {
+    image: '/images/garments/polo-meridian.webp',
+    color: 'Noir',
+  },
+  'falda-ligne': { image: '/images/garments/falda-ligne.webp', color: 'Noir' },
+  'falda-plisse': {
+    image: '/images/garments/falda-plisse.webp',
+    color: 'Ivory',
+  },
+  'mono-eclipse': {
+    image: '/images/garments/mono-eclipse.webp',
+    color: 'Noir',
+  },
+  'pantalon-fluide': {
+    image: '/images/garments/pantalon-fluide.webp',
+    color: 'Ivory',
+  },
 };
 export function productMedia(p: Pick<Product, 'slug' | 'image'>) {
   const reference = references[p.slug];

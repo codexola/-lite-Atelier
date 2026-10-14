@@ -138,24 +138,117 @@ test('Wompi order reference is fetched from the authoritative API, not unsigned 
   assert.equal(result.reference, actualReference);
 });
 
-test('all preview garments have complete front, side and back media for every color, and custom photos keep their own reference', async () => {
-  const { products, colors } = await import('../src/lib/catalog');
+test('all 18 garments have front, side, back and transparent camera assets for their actual colors; custom photos keep their own reference', async () => {
+  const { products } = await import('../src/lib/catalog');
+  const { productColors, garmentAsset } =
+    await import('../src/lib/garment-assets');
   const { productMedia, wornImage } = await import('../src/lib/product-media');
   const { existsSync } = await import('node:fs');
+  assert.equal(products.length, 18);
+  let views = 0;
+  let cutouts = 0;
+  const sharp = (await import('sharp')).default;
   for (const product of products) {
     assert.ok(productMedia(product));
-    for (const color of colors)
+    for (const color of productColors(product)) {
+      const asset = garmentAsset(product, color);
+      assert.ok(asset);
+      assert.ok(existsSync('public' + asset), asset);
+      const { data, info } = await sharp('public' + asset)
+        .ensureAlpha()
+        .raw()
+        .toBuffer({ resolveWithObject: true });
+      const alphas = Array.from(
+        { length: info.width * info.height },
+        (_, i) => data[i * 4 + 3],
+      );
+      assert.ok(
+        alphas.some((a) => a === 0),
+        `${asset} needs transparent background`,
+      );
+      assert.ok(
+        alphas.some((a) => a > 240),
+        `${asset} needs a visible garment`,
+      );
+      cutouts++;
       for (const angle of ['front', 'side', 'back']) {
         assert.ok(
-          existsSync('public' + wornImage(product, color.name, angle)),
-          `${product.slug} ${color.name} ${angle}`,
+          existsSync('public' + wornImage(product, color, angle)),
+          `${product.slug} ${color} ${angle}`,
         );
+        views++;
       }
+    }
   }
+  assert.equal(views, 90);
+  assert.equal(cutouts, 30);
   const custom = {
     ...products[0],
     image: '/images/custom-approved-product.webp',
   };
   assert.equal(productMedia(custom), null);
   assert.equal(wornImage(custom, 'Ivory'), custom.image);
+  assert.equal(garmentAsset(custom, 'Ivory'), null);
+  assert.equal(garmentAsset(products[0], '../invalid'), null);
+});
+
+test('body fitting follows shoulders, hips and arms and rejects hidden or invalid joints', async () => {
+  const { fitGrid } = await import('../src/lib/camera-fitting');
+  const body = Array.from({ length: 33 }, () => ({
+    x: 0.5,
+    y: 0.5,
+    visibility: 1,
+  }));
+  for (const [i, x, y] of [
+    [11, 0.35, 0.2],
+    [12, 0.65, 0.2],
+    [13, 0.3, 0.4],
+    [14, 0.7, 0.4],
+    [15, 0.3, 0.55],
+    [16, 0.7, 0.55],
+    [23, 0.4, 0.55],
+    [24, 0.6, 0.55],
+    [25, 0.4, 0.75],
+    [26, 0.6, 0.75],
+    [27, 0.4, 0.95],
+    [28, 0.6, 0.95],
+  ])
+    body[i] = { x, y, visibility: 1 };
+  const initial = fitGrid(body, 640, 960, 'upper', true)!;
+  const moved = fitGrid(
+    body.map((p) => ({ ...p, x: p.x + 0.05 })),
+    640,
+    960,
+    'upper',
+    true,
+  )!;
+  assert.ok(Math.abs(moved[0][2].x - initial[0][2].x - 32) < 0.001);
+  assert.ok(fitGrid(body, 640, 960, 'lower', false));
+  assert.ok(fitGrid(body, 640, 960, 'dress', false));
+  assert.ok(fitGrid(body, 640, 960, 'full', false));
+  const skirt = fitGrid(body, 640, 960, 'skirt', false)!;
+  assert.ok(skirt[3][2].y < fitGrid(body, 640, 960, 'lower', false)![3][2].y);
+  assert.equal(fitGrid([], 640, 960, 'lower', false), null);
+  assert.equal(fitGrid(body, 0, 960, 'upper', true), null);
+  assert.equal(fitGrid(body, 640, 960, 'upper', true, NaN), null);
+  assert.equal(
+    fitGrid(
+      body.map((p, i) => (i === 27 ? { ...p, visibility: 0 } : p)),
+      640,
+      960,
+      'full',
+      false,
+    ),
+    null,
+  );
+  assert.equal(
+    fitGrid(
+      body.map((p, i) => (i === 11 ? { ...p, x: NaN } : p)),
+      640,
+      960,
+      'upper',
+      true,
+    ),
+    null,
+  );
 });

@@ -16,7 +16,8 @@ const links = [
   ['Colecciones', '/colecciones'],
   ['Co-creación', '/co-creacion'],
   ['Comunidad', '/comunidad'],
-  ['La maison', '/manifiesto'],
+  ['Universo', '/universo'],
+  ['Probador', '/probador-virtual'],
 ];
 export function Header() {
   const { cart, setCartOpen } = useAtelier();

@@ -14,7 +14,7 @@ export function SectionTitle({
   link?: string;
 }) {
   return (
-    <div className="section-title">
+    <div className="section-title" data-reveal>
       <div>
         <span className="eyebrow">{eyebrow}</span>
         <h2>{title}</h2>

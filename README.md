@@ -12,11 +12,13 @@ npm run db:check
 npm run dev
 ```
 
-Development automatically initializes `.data/atelier.db` with six clearly labeled conceptual products and 90 size/color variants. A private session key is generated locally. No external credentials are required for local preview workflows. Keep `.data`, `.env*`, and provider credentials out of Git.
+Development automatically initializes `.data/atelier.db` with 18 clearly labeled conceptual products and 150 size/color variants. A private session key is generated locally. No external credentials are required for local preview workflows. Keep `.data`, `.env*`, and provider credentials out of Git.
 
 ## Included
 
 - Editorial landing, filtered catalog, product detail, size guide, manifesto, journal, FAQ, policies, and contact.
+- Architectural Universe editorial, 90 front/profile/back model images, 30 transparent camera garments, hover/touch zoom, color and size selection.
+- Private camera/photo fitting room with real on-device body tracking, experimental 2D garment overlay, local download and basket handoff. No photo upload or inference account is required.
 - Four-question deterministic identity quiz and voluntary early-access registration.
 - Persisted cart, server-priced checkout, protected receipts, customer order history, and test orders without charges.
 - Registration/login, profiles, password changes, optional emailed recovery, favorites, and saved co-creation specifications.
@@ -55,4 +57,4 @@ Browser tests run against the production server with their own `.data/e2e.db`. T
 
 The original brief did not supply approved stock, production capacity, legal operator, delivery terms, or merchant credentials. The initial catalog and imagery are therefore explicitly conceptual. Preview orders do not charge or ship. Both `COMMERCE_MODE=live` and `LAUNCH_APPROVED=true` are required for live checkout, and unapproved products cannot be purchased live.
 
-Virtual AI try-on, verified manufacturing, regional tax/logistics expansion, real advertising, and post-launch sales results are not simulated. They require operational inputs, external providers, and separate validation.
+The camera fitting room is an experimental 2D preview, not photorealistic try-on or a size measurement service. It does not simulate fabric drape, occlusion or actual fit. Photorealistic try-on requires a specialist inference provider and separate consent/quality validation. Verified manufacturing, regional tax/logistics expansion, real advertising and post-launch sales results still require operational inputs and external providers.

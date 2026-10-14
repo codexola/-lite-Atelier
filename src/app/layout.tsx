@@ -2,6 +2,7 @@ import { publicSettings } from '@/lib/settings';
 import type { Metadata } from 'next';
 import { AtelierProvider } from '@/components/atelier-provider';
 import { Analytics } from '@/components/analytics';
+import { EditorialMotion } from '@/components/motion';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import '@fontsource/cormorant-garamond/latin-400.css';
@@ -43,6 +44,7 @@ export default function RootLayout({
       <body>
         <AtelierProvider>
           <Analytics />
+          <EditorialMotion />
           <a href="#main" className="skip-link">
             Saltar al contenido
           </a>

@@ -2,7 +2,8 @@ import { createClient, type Client } from '@libsql/client';
 import { mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { products, sizes, colors } from './catalog';
+import { products, sizes } from './catalog';
+import { productColors } from './garment-assets';
 const globals = globalThis as unknown as {
   atelierDb?: Client;
   atelierInit?: Promise<void>;
@@ -84,10 +85,10 @@ CREATE TABLE IF NOT EXISTS audit(id TEXT PRIMARY KEY,user_id TEXT NOT NULL,actio
     });
     if (inserted.rowsAffected)
       for (const size of sizes)
-        for (const color of colors)
+        for (const color of productColors(p))
           await c.execute({
             sql: 'INSERT OR IGNORE INTO variants(product_id,size,color,stock) VALUES(?,?,?,?)',
-            args: [p.id, size, color.name, p.stock],
+            args: [p.id, size, color, p.stock],
           });
   }
   const editorials = [

@@ -55,6 +55,10 @@ const policies: Record<
         'Puedes solicitar conocer, actualizar, rectificar, suprimir datos o revocar autorizaciones cuando proceda, de acuerdo con la Ley 1581 de 2012 y sus normas reglamentarias. Usa el formulario de contacto, seleccionando privacidad y datos personales. No compartas documentos de identidad o datos sensibles innecesarios en la vista previa.',
       ],
       [
+        'Probador y cámara',
+        'La cámara se activa únicamente con tu permiso. Los fotogramas, fotos locales y puntos de seguimiento se procesan en tu dispositivo; no se suben al servidor ni se guardan en tu cuenta. Puedes apagar la cámara y borrar la foto, o descargar una vista previa en tu propio dispositivo. La superposición experimental no determina medidas ni reproduce el ajuste real de la prenda.',
+      ],
+      [
         'Proveedores y seguridad',
         'La versión desplegada requiere almacenamiento persistente y hosting configurados por el propietario. Los pagos y el email, al activarse, usarán proveedores externos. Sus condiciones y posibles transferencias internacionales deben revisarse y declararse antes del lanzamiento.',
       ],

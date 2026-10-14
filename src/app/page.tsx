@@ -7,6 +7,7 @@ import { collections } from '@/lib/catalog';
 import { SectionTitle } from '@/components/section-title';
 import { ProductCard } from '@/components/product-card';
 import { Newsletter } from '@/components/footer';
+import { SpatialStories } from '@/components/spatial-stories';
 import { AtelierWorld } from '@/components/atelier-world';
 export const dynamic = 'force-dynamic';
 export default async function Home() {
@@ -90,6 +91,7 @@ export default async function Home() {
         </div>
       </section>
       <AtelierWorld />
+      <SpatialStories />
       <section id="signature" className="section">
         <SectionTitle
           eyebrow="PIEZAS QUE HABLAN DE TI"
@@ -104,6 +106,23 @@ export default async function Home() {
             .slice(0, 4)
             .map((p, i) => (
               <ProductCard key={p.id} product={p} index={i} />
+            ))}
+        </div>
+      </section>
+      <section className="section new-expressions">
+        <SectionTitle
+          eyebrow="EL SIGUIENTE CAPÍTULO"
+          title="Nuevas formas de expresión."
+          description="Punto, abrigos y siluetas para ampliar tu universo."
+          href="/colecciones"
+          link="Explorar las 18 propuestas"
+        />
+        <div className="product-grid">
+          {products
+            .filter((p) => p.image.startsWith('/images/garments/'))
+            .slice(0, 4)
+            .map((p) => (
+              <ProductCard key={p.id} product={p} />
             ))}
         </div>
       </section>
@@ -140,7 +159,7 @@ export default async function Home() {
           ))}
         </div>
       </section>
-      <section className="manifesto-teaser">
+      <section className="manifesto-teaser" data-reveal>
         <div className="manifesto-copy">
           <span className="eyebrow">NUESTRO MANIFIESTO</span>
           <h2>
@@ -170,7 +189,7 @@ export default async function Home() {
           <span>LA BELLEZA DE SER DIFERENTE.</span>
         </div>
       </section>
-      <section className="atelier-teaser">
+      <section className="atelier-teaser" data-reveal>
         <div className="atelier-visual">
           <span className="eyebrow">TU ATELIER PERSONAL</span>
           <Image

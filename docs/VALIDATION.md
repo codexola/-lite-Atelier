@@ -2,18 +2,18 @@
 
 Validated on 14 October 2026 against the local production build with Node.js 24.19.0. Local tests use isolated fixtures. The connected Vercel preview now passes database/auth readiness and live account/favorite persistence checks; real merchant/email operation remains unverified.
 
-| Check                                | Result                                                                                                                                    |
-| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| Frozen dependency install (`npm ci`) | Passed; repeatable without changing source or data                                                                                        |
-| TypeScript / production build        | Passed                                                                                                                                    |
-| Domain tests                         | 8 passed; no failures or skipped tests                                                                                                    |
-| Production-browser suite             | 13 passed; no failures or skipped tests                                                                                                   |
-| Responsive overflow                  | Passed at 360, 390, 768, 1024 and 1440 px for home, catalog, product, creator, account and community                                      |
-| Automated accessibility              | No WCAG A/AA violations in the scanned home, account, contact, identity, catalog and product pages; dialog focus wrapping/Escape verified |
-| Local database readiness             | 6 conceptual products / 90 variants; health reports database/auth ready, preview commerce                                                 |
-| Local backup restore                 | Consistent snapshot created; principal restored table counts matched                                                                      |
-| Production dependency audit          | 0 vulnerabilities reported by `npm audit --omit=dev`                                                                                      |
-| Formatting                           | Passed                                                                                                                                    |
+| Check                                | Result                                                                                                                                                              |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Frozen dependency install (`npm ci`) | Passed; repeatable without changing source or data                                                                                                                  |
+| TypeScript / production build        | Passed                                                                                                                                                              |
+| Domain tests                         | 9 passed; no failures or skipped tests                                                                                                                              |
+| Production-browser suite             | 16 passed; no failures or skipped tests                                                                                                                             |
+| Responsive overflow                  | Passed at 360, 390, 768, 1024 and 1440 px for home, catalog, product, creator, account, community, Universe and camera fitting                                      |
+| Automated accessibility              | No WCAG A/AA violations in the scanned home, account, contact, identity, catalog, product, Universe and camera fitting pages; dialog focus wrapping/Escape verified |
+| Local database readiness             | 18 conceptual products / 150 variants; health reports database/auth ready, preview commerce                                                                         |
+| Local backup restore                 | Consistent snapshot created; principal restored table counts matched                                                                                                |
+| Production dependency audit          | 0 vulnerabilities reported by `npm audit --omit=dev`                                                                                                                |
+| Formatting                           | Passed                                                                                                                                                              |
 
 The browser suite checks catalog filtering and public-page responses; size selection and cart persistence; preview checkout and protected confirmation; four-question identity recommendations; account registration/favorites/designs; origin and consent validation; server prices and simultaneous idempotent requests; moderation/roles/messages/CMS; responsive widths and actual image loading; accessibility and dialog focus; signed payment fixture settlement, duplicate callbacks, wrong totals, forged signatures and exactly-once inventory release; and administrator UI/variant inventory access.
 
@@ -62,3 +62,11 @@ The Production session secret was corrected: the live health endpoint now return
 Hosted GitHub Actions passed for `aa09eed`: https://github.com/codexola/-lite-Atelier/actions/runs/38564497069. The GitHub browser reporter now exposes future failed assertions as workflow annotations; existing list/HTML reports remain. The gallery/media implementation is commit `b23a54e`, with mobile touch targets and wordmark accessibility refinements in `aa09eed`.
 
 The final local emulated-mobile Lighthouse run reports Performance **91**, Accessibility **100**, Best Practices **100**, CLS **0.00055**, TBT **110 ms**, and LCP **3.3 seconds**. This is a laboratory measurement; field metrics and the 2.5-second LCP target remain unverified. Preview SEO remains intentionally restricted. All 54 worn-image exports were checked for successful static delivery in the browser suite; deployed store/product pages and representative asset bytes were also verified after publication.
+
+## Expanded wardrobe and local camera preview
+
+The current implementation has 18 conceptual products, 150 stored variants, 90 front/profile/back photographs and 30 transparent camera garments. The original imagery and catalog records remain. Domain checks verify every photographed color/view and alpha-bearing camera asset, custom-image fallback, valid pose geometry and rejection of hidden/invalid joints. The production browser suite covers the expanded admin categories/image library and stock changes without inventing additional colors.
+
+Camera checks execute the real self-hosted MediaPipe model, not mocked pose landmarks. A generated catalog photo and simulated camera video produce body detection and visible overlays. Tests verify a photo overlay persists after 1.6 seconds; garment/color changes; a local labeled download; selected size/color in the basket; no photo POSTs, external model/CDN requests or image data in localStorage; camera tracks ending on stop and client navigation; and rejected permission/unsupported photo recovery. Layout and WCAG scans include `/universo` and `/probador-virtual`. All layout-visible landing images are scrolled into view and checked for completed loading, excluding transient hidden server-streaming DOM copies.
+
+These checks establish a functioning experimental 2D preview in Chromium and responsive layouts at the listed widths. They do not establish fabric simulation, photorealism, precise garment size, physical camera quality on every mobile device, or specialist hosted inference. The user explicitly requested the camera preview first. A repeatable `npm ci` also verified automatic model/runtime copying from the frozen npm dependency; model originals remain unmodified and carry the upstream license.

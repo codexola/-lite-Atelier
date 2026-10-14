@@ -12,6 +12,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '',
     '/colecciones',
     '/manifiesto',
+    '/universo',
+    '/probador-virtual',
     '/co-creacion',
     '/comunidad',
     '/identidad',

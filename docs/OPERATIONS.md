@@ -15,6 +15,12 @@ Open `/admin` → Catálogo. Create or edit a product, collection, description, 
 
 The initial stock field initializes/replaces every size/color variant. Use the per-variant inventory table for precise quantities. Inventory cannot be overwritten while that product/variant has pending payment reservations. Upload approved photography into `public/images/` through the repository and use a `.webp` library path; arbitrary external image URLs and insecure uploads are not accepted.
 
+The conceptual wardrobe contains 18 products across seven categories. The original six offer three illustrated colors; the 12 additions offer one photographed color initially. Bulk stock edits preserve that color set. The image library includes the new garment assets and preserves the current image when editing custom products. To add accurate color/angle or camera assets, supply matching reference photographs and update the explicit media/garment mappings; reusing an unrelated preview garment is deliberately prevented.
+
+## Camera preview
+
+`/probador-virtual` is a private experimental 2D preview. No customer photos or live frames are uploaded or saved to the database. The local body-tracking models require no provider key and are prepared automatically by `npm ci`. Users can stop/borrar the camera/photo or download a labeled local snapshot. A chosen size is a cart variant, not a camera measurement. Customer-facing support must not describe the overlay as exact fit or photorealistic clothing; that future capability requires a specialized provider and quality/consent review.
+
 ## Orders
 
 Preview orders are retained separately from real sales. Operators can cancel a preview order. A real order becomes paid only through verified payment evidence. Valid fulfillment progression is paid → processing → shipped → delivered. Updating a paid order's status does not send tracking emails or procure shipping labels; the logistics operator supplies those services.

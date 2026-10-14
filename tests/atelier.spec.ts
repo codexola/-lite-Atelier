@@ -2,6 +2,8 @@ import { test, expect, type APIRequestContext } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { createClient } from '@libsql/client';
 import { hashPassword } from '../src/lib/password';
+import { products } from '../src/lib/catalog';
+import { productColors } from '../src/lib/garment-assets';
 import path from 'node:path';
 const origin = { Origin: 'http://localhost:3000' };
 const adminEmail = 'test-admin@example.com';
@@ -32,7 +34,7 @@ test('all public pages render and catalog filters find the right pieces', async 
     .getByRole('link', { name: 'EXPLORAR LA COLECCIÓN', exact: true })
     .click();
   await page.getByRole('button', { name: 'Vestidos', exact: true }).click();
-  await expect(page.locator('.product-card')).toHaveCount(1);
+  await expect(page.locator('.product-card')).toHaveCount(2);
   await expect(
     page.getByRole('heading', { name: 'Vestido Silhouette' }),
   ).toBeVisible();
@@ -147,7 +149,7 @@ test('identity quiz completes four questions with deterministic recommendations'
   await expect(
     page.getByRole('heading', { name: 'La esencia minimalista.' }),
   ).toBeVisible();
-  await expect(page.locator('.product-card')).toHaveCount(1);
+  await expect(page.locator('.product-card')).toHaveCount(4);
 });
 test('registration, favorites, private and public design specifications persist', async ({
   page,
@@ -350,6 +352,8 @@ test('no horizontal overflow at all required viewport widths and primary images 
       '/co-creacion',
       '/cuenta',
       '/comunidad',
+      '/universo',
+      '/probador-virtual',
     ]) {
       await page.goto(url);
       await page.waitForTimeout(100);
@@ -378,6 +382,19 @@ test('no horizontal overflow at all required viewport widths and primary images 
     }
     window.scrollTo(0, 0);
   });
+  const editorialImages = page.locator('main img:visible');
+  for (let i = 0; i < (await editorialImages.count()); i++) {
+    const img = editorialImages.nth(i);
+    await img.scrollIntoViewIfNeeded();
+    await expect
+      .poll(() =>
+        img.evaluate(
+          (image: HTMLImageElement) => image.complete && image.naturalWidth > 0,
+        ),
+      )
+      .toBe(true);
+  }
+  await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({
     path: 'test-results/home-desktop.png',
     fullPage: true,
@@ -400,6 +417,8 @@ test('landing and key forms pass automated accessibility checks and cart traps f
     '/identidad',
     '/colecciones',
     '/producto/blazer-noir',
+    '/universo',
+    '/probador-virtual',
   ]) {
     await page.goto(url);
     const result = await new AxeBuilder({ page })
@@ -596,12 +615,44 @@ test('administrator UI exposes role-protected inventory, content, messages and m
     page.getByRole('heading', { name: 'Detrás de cada historia.' }),
   ).toBeVisible();
   await page.getByRole('button', { name: 'Catálogo', exact: true }).click();
-  await expect(page.locator('.admin-table tbody tr')).toHaveCount(6);
+  await expect(page.locator('.admin-table tbody tr')).toHaveCount(18);
   await page.getByRole('button', { name: 'Editar pieza' }).first().click();
   await expect(page.getByRole('dialog')).toBeVisible();
   await page.getByText('Inventario por talla y color', { exact: true }).click();
   await expect(page.getByLabel('Stock M Noir', { exact: true })).toBeVisible();
   await page.keyboard.press('Escape');
+  const newPiece = page
+    .locator('.admin-table tbody tr')
+    .filter({ hasText: 'Gabardina Pluie' });
+  await newPiece.getByRole('button', { name: 'Editar pieza' }).click();
+  await expect(page.getByLabel('Categoría', { exact: true })).toHaveValue(
+    'Abrigos',
+  );
+  await expect(
+    page.getByLabel('Imagen de la biblioteca', { exact: true }),
+  ).toHaveValue('/images/garments/gabardina-pluie.webp');
+  await page.keyboard.press('Escape');
+  const adminState = await (await page.request.get('/api/admin')).json();
+  const garment = adminState.products.find(
+    (p: any) => p.slug === 'gabardina-pluie',
+  );
+  const updated = await post(page.request, 'admin/product', {
+    ...garment,
+    stock: garment.stock + 1,
+  });
+  expect(updated.status()).toBe(200);
+  const inventory = await (
+    await page.request.get('/api/admin/variants?id=' + garment.id)
+  ).json();
+  expect(inventory.variants).toHaveLength(5);
+  expect(
+    inventory.variants.every(
+      (v: any) => v.color === 'Ivory' && v.stock === garment.stock + 1,
+    ),
+  ).toBe(true);
+  expect((await post(page.request, 'admin/product', garment)).status()).toBe(
+    200,
+  );
   await page.getByRole('button', { name: 'Mensajes', exact: true }).click();
   await expect(
     page.getByRole('heading', { name: 'Conversaciones del atelier.' }),
@@ -712,15 +763,10 @@ test('store color previews and garment-only toggle retain the selected variant',
     .getByRole('link', { name: 'Ver Blazer Noir', exact: true })
     .click();
   await expect(page.locator('.fit-main-image')).toHaveAttribute('alt', /Taupe/);
-  for (const slug of [
-    'blazer-noir',
-    'top-lumiere',
-    'pantalon-atelier',
-    'vestido-silhouette',
-    'blazer-ecru',
-    'camisa-origine',
-  ]) {
-    for (const color of ['noir', 'ivory', 'taupe'])
+  for (const product of products) {
+    const slug = product.slug;
+    for (const name of productColors(product)) {
+      const color = name.toLowerCase();
       for (const angle of ['front', 'side', 'back']) {
         const response = await request.get(
           `/images/products/${slug}/${color}-${angle}.webp`,
@@ -728,6 +774,7 @@ test('store color previews and garment-only toggle retain the selected variant',
         expect(response.status(), `${slug}/${color}-${angle}`).toBe(200);
         expect(response.headers()['content-type']).toContain('image/webp');
       }
+    }
   }
   await page.setViewportSize({ width: 390, height: 844 });
   await page

@@ -12,6 +12,8 @@ The connected public project is **https://liteatelierdemo.vercel.app**. The mode
 
 ## Required for the data-backed preview
 
+The camera preview requires no new credentials. `npm ci` runs the postinstall script that copies unmodified MediaPipe runtime/model assets into `public/models/pose`; these generated files are excluded from Git. Do not disable install scripts. Runtime requests stay on the application origin. The camera requires HTTPS, browser permission and WebGL/WASM support; local photo and manual positioning are available as alternatives. The response allows same-origin camera access while microphone/geolocation stay disabled. This feature is an experimental overlay and does not claim photorealistic try-on or physical size accuracy.
+
 | Setting              | Purpose                                                               |
 | -------------------- | --------------------------------------------------------------------- |
 | `TURSO_DATABASE_URL` | Actual hosted libSQL/Turso URL. Never use a local file URL on Vercel. |

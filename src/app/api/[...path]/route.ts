@@ -14,6 +14,8 @@ import {
   HttpError,
 } from '@/lib/auth';
 import { checkoutSchema, styleResult, orderTransition } from '@/lib/domain';
+import { productCategories } from '@/lib/catalog';
+import { productColors } from '@/lib/garment-assets';
 import {
   checkout,
   paidOrder,
@@ -787,10 +789,12 @@ export async function POST(
             .regex(/^[a-z0-9-]+$/)
             .max(100),
           name: text(2, 100),
-          category: z.enum(['Sastrería', 'Esenciales', 'Vestidos']),
+          category: z.enum(productCategories),
           collection: z.enum(['Signature', 'Éditions', 'Origine']),
           price: z.number().int().min(100).max(100000000000),
-          image: z.string().regex(/^\/images\/[a-z0-9-]+\.webp$/),
+          image: z
+            .string()
+            .regex(/^\/images\/(?:garments\/)?[a-z0-9-]+\.webp$/),
           description: text(10, 2000),
           material: text(3, 500),
           fit: text(3, 500),
@@ -836,7 +840,7 @@ export async function POST(
               'Hay reservas de pago pendientes para esta pieza. No se puede reemplazar su stock.',
             );
           for (const size of ['XS', 'S', 'M', 'L', 'XL'])
-            for (const color of ['Noir', 'Ivory', 'Taupe'])
+            for (const color of productColors(input))
               await tx.execute({
                 sql: 'INSERT INTO variants(product_id,size,color,stock) VALUES(?,?,?,?) ON CONFLICT(product_id,size,color) DO UPDATE SET stock=excluded.stock',
                 args: [input.id, size, color, input.stock],

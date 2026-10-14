@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowUpRight, Heart, Truck, ChevronRight } from 'lucide-react';
+import { garmentAsset, productColors } from '@/lib/garment-assets';
 import { ProductGallery } from './product-gallery';
 import {
   productMedia,
@@ -19,12 +20,14 @@ export function ProductScreen({
 }) {
   const { add, notify } = useAtelier();
   const [size, setSize] = useState('');
-  const [color, setColor] = useState(productMedia(p)?.color || 'Noir');
+  const [color, setColor] = useState(
+    productMedia(p)?.color || productColors(p)[0],
+  );
   const [saved, setSaved] = useState(false);
   useEffect(() => {
     track('product_view');
     const initial = new URLSearchParams(window.location.search).get('color');
-    if (initial && colors.some((c) => c.name === initial)) setColor(initial);
+    if (initial && productColors(p).includes(initial)) setColor(initial);
     const initialSize = new URLSearchParams(window.location.search).get(
       'talla',
     );
@@ -61,25 +64,30 @@ export function ProductScreen({
           </span>
         </div>
         <div className="color-options">
-          {colors.map((c) => (
-            <button
-              key={c.name}
-              className={'color-option ' + (c.name === color ? 'selected' : '')}
-              style={{ background: c.hex }}
-              aria-label={'Color ' + c.name}
-              aria-pressed={c.name === color}
-              onClick={() => {
-                setColor(c.name);
-                if (
-                  variants.length > 0 &&
-                  !variants.some(
-                    (v) => v.color === c.name && v.size === size && v.stock > 0,
+          {colors
+            .filter((c) => productColors(p).includes(c.name))
+            .map((c) => (
+              <button
+                key={c.name}
+                className={
+                  'color-option ' + (c.name === color ? 'selected' : '')
+                }
+                style={{ background: c.hex }}
+                aria-label={'Color ' + c.name}
+                aria-pressed={c.name === color}
+                onClick={() => {
+                  setColor(c.name);
+                  if (
+                    variants.length > 0 &&
+                    !variants.some(
+                      (v) =>
+                        v.color === c.name && v.size === size && v.stock > 0,
+                    )
                   )
-                )
-                  setSize('');
-              }}
-            />
-          ))}
+                    setSize('');
+                }}
+              />
+            ))}
         </div>
         <div className="option-heading">
           <span>
@@ -177,6 +185,15 @@ export function ProductScreen({
             <Heart size={19} fill={saved ? 'currentColor' : 'none'} />
           </button>
         </div>
+        {garmentAsset(p, color) && (
+          <Link
+            className="try-camera-link"
+            href={'/probador-virtual?pieza=' + p.slug + '&color=' + color}
+          >
+            PROBAR EN MI CÁMARA <ArrowUpRight size={16} />
+            <small>Seguimiento corporal local · vista experimental</small>
+          </Link>
+        )}
         <p className="product-delivery">
           <Truck size={16} /> Envíos en Colombia · condiciones por confirmar
         </p>
