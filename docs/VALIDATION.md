@@ -32,3 +32,11 @@ The responsive and accessibility browser checks were rerun after this correction
 ## Fresh-machine verification
 
 A hosted CI browser-test startup failure prompted a clean-directory check. A file-based database override previously required its parent directory to exist. Initialization now creates the parent for file URLs, while hosted libSQL URLs retain their normal remote behavior. The complete browser suite was rerun against an entirely new, previously uncreated database directory: **10 passed**. Test configuration explicitly isolates email/payment bindings and uses Playwright's installed Chromium on GitHub Actions.
+
+GitHub Actions subsequently passed the complete hosted workflow for commit `63cce77`: https://github.com/codexola/-lite-Atelier/actions/runs/38554127741.
+
+The receipt regression now verifies that completing the active checkout empties its basket, while reopening that receipt after selecting another product preserves the new basket. Receipt polling clears the active checkout only once.
+
+## Connected Vercel project
+
+On 14 October 2026, https://liteatelierdemo.vercel.app/ and `/co-creacion` both returned HTTP 200. Its health endpoint returned HTTP 503 with `database:true`, `auth:false`, `commerce:"preview"`, and `payment:false`. These checks demonstrate deployed public pages and database readiness, but authenticated workflows still require Production `AUTH_SECRET` and redeployment. Real payment and email delivery remain unverified.

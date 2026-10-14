@@ -89,13 +89,26 @@ test('product selection, persisted cart, checkout, and protected receipt work en
       exact: false,
     }),
   ).toBeVisible();
-  const id = new URL(page.url()).pathname.split('/').pop();
+  const receiptUrl = page.url();
+  const id = new URL(receiptUrl).pathname.split('/').pop();
   const denied = await request.get('/api/orders/' + id);
   expect(denied.status()).toBe(404);
   await page.goto('/carrito');
   await expect(
     page.getByRole('heading', { name: 'Un lienzo en blanco.' }),
   ).toBeVisible();
+  await page.goto('/producto/top-lumiere');
+  await page.getByRole('button', { name: 'M', exact: true }).click();
+  await page.getByRole('button', { name: 'AÑADIR A MI SELECCIÓN' }).click();
+  await page.getByRole('link', { name: 'Ver mi selección' }).click();
+  await page.goto(receiptUrl);
+  await expect(
+    page.getByText('Tu pedido de prueba se ha guardado correctamente.', {
+      exact: false,
+    }),
+  ).toBeVisible();
+  await page.goto('/carrito');
+  await expect(page.getByText('Top Lumière', { exact: true })).toBeVisible();
 });
 test('identity quiz completes four questions with deterministic recommendations', async ({
   page,

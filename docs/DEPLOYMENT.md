@@ -2,6 +2,8 @@
 
 ## GitHub → Vercel
 
+The connected public project is **https://liteatelierdemo.vercel.app**. On 14 October 2026, `/` and `/co-creacion` returned HTTP 200. `/api/health` returned HTTP 503 with `database:true`, `auth:false`, and `commerce:"preview"`: the database check succeeds, but Production needs a random `AUTH_SECRET` of at least 32 characters and a redeployment before authenticated operation can be verified. Set `APP_URL=https://liteatelierdemo.vercel.app` for provider redirects and email links.
+
 1. In the existing Vercel project, verify repository `codexola/-lite-Atelier`, production branch `main`, root directory `.`, framework Next.js, and Node.js 24.
 2. Add the settings below in Vercel's secure environment settings. Use separate preview and production databases, provider keys, and secrets. Never put credentials into Git, a chat message, screenshots, or public build logs.
 3. Push the checked application to `main`. Vercel automatically installs the frozen lockfile and runs domain tests plus the production build.

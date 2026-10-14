@@ -248,6 +248,13 @@ export function CheckoutScreen({ settings }: { settings: Settings }) {
                   })),
                   idempotencyKey: key,
                 });
+                const attempt = JSON.parse(
+                  sessionStorage.getItem('atelier-checkout-attempt') || '{}',
+                );
+                sessionStorage.setItem(
+                  'atelier-checkout-attempt',
+                  JSON.stringify({ ...attempt, orderId: r.orderId }),
+                );
                 window.location.assign(r.url);
               } catch (err) {
                 setError((err as Error).message);
@@ -385,8 +392,16 @@ export function OrderScreen({ id }: { id: string }) {
               r.order.status,
             )
           ) {
-            clear();
-            sessionStorage.removeItem('atelier-checkout-attempt');
+            let attempt;
+            try {
+              attempt = JSON.parse(
+                sessionStorage.getItem('atelier-checkout-attempt') || 'null',
+              );
+            } catch {}
+            if (attempt?.orderId === r.order.id) {
+              clear();
+              sessionStorage.removeItem('atelier-checkout-attempt');
+            }
           }
         }
       } catch (e) {
