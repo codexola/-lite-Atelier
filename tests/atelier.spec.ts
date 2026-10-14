@@ -672,7 +672,7 @@ test('worn gallery preserves angles across colors, zoom follows the pointer, and
 }) => {
   await page.goto('/producto/blazer-noir');
   await page.getByRole('button', { name: 'Solo esenciales' }).click();
-  const image = page.locator('.fit-main-image');
+  const image = page.locator('.fit-main-image:visible');
   await expect(image).toHaveAttribute('alt', /Noir.*frente.*en modelo/);
   await page
     .getByRole('button', { name: 'Ver vista Perfil', exact: true })
@@ -687,20 +687,26 @@ test('worn gallery preserves angles across colors, zoom follows the pointer, and
   await page.getByRole('button', { name: 'L', exact: true }).click();
   await expect(page.locator('.fit-measurements')).toContainText('Ivory / L');
   await expect(page.locator('.fit-measurements')).toContainText('94–100');
-  await page.locator('.fit-main').hover({ position: { x: 90, y: 170 } });
-  await expect(page.locator('.fit-main')).toHaveClass(/is-hovering/);
+  await page
+    .locator('.fit-main:visible')
+    .hover({ position: { x: 90, y: 170 } });
+  await expect(page.locator('.fit-main:visible')).toHaveClass(/is-hovering/);
   await expect
     .poll(() => image.evaluate((el) => getComputedStyle(el).transform))
     .not.toBe('matrix(1, 0, 0, 1, 0, 0)');
   const origin = await image.evaluate(
     (el) => (el as HTMLElement).style.transformOrigin,
   );
-  await page.locator('.fit-main').hover({ position: { x: 180, y: 300 } });
+  await page
+    .locator('.fit-main:visible')
+    .hover({ position: { x: 180, y: 300 } });
   expect(
     await image.evaluate((el) => (el as HTMLElement).style.transformOrigin),
   ).not.toBe(origin);
   await page.getByRole('heading', { name: 'Blazer Noir', exact: true }).hover();
-  await expect(page.locator('.fit-main')).not.toHaveClass(/is-hovering/);
+  await expect(page.locator('.fit-main:visible')).not.toHaveClass(
+    /is-hovering/,
+  );
   await page
     .getByRole('button', { name: 'Ampliar imagen de la pieza' })
     .click();
@@ -762,7 +768,10 @@ test('store color previews and garment-only toggle retain the selected variant',
   await first
     .getByRole('link', { name: 'Ver Blazer Noir', exact: true })
     .click();
-  await expect(page.locator('.fit-main-image')).toHaveAttribute('alt', /Taupe/);
+  await expect(page.locator('.fit-main-image:visible')).toHaveAttribute(
+    'alt',
+    /Taupe/,
+  );
   for (const product of products) {
     const slug = product.slug;
     for (const name of productColors(product)) {
