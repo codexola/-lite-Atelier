@@ -1,6 +1,6 @@
 # Validation evidence
 
-Validated on 14 October 2026 against the local production build with Node.js 24.19.0. External merchant/email/database services were not configured; their real connectivity and production operation remain launch checks.
+Validated on 14 October 2026 against the local production build with Node.js 24.19.0. Local tests use isolated fixtures. The connected Vercel preview now passes database/auth readiness and live account/favorite persistence checks; real merchant/email operation remains unverified.
 
 | Check                                | Result                                                                                                                                    |
 | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
@@ -54,3 +54,11 @@ The complete production browser suite passed **13 tests**, with **8 domain/media
 Eighteen original generated triptychs provide six garments × three colors × three angles. The 54 WebP exports occupy approximately 2.1 MB. Campaign/editorial imagery and original garment-only photographs are retained. Size selection exposes the same orientative body measurements as the existing size guide; generated images do not claim to simulate a particular customer's fit or changes in garment size. Existing custom/approved product photographs are preserved when they differ from a conceptual reference. Availability reads saved variant inventory, and checkout remains authoritative.
 
 The live authentication check was retried after the user's reported Production redeployment and still returned `auth:false` before this update was published. The updated health response distinguishes `missing` from `too-short` without disclosing the secret or its value. API JSON responses explicitly use `Cache-Control: no-store`. Final live deployment readiness must be checked after publication.
+
+## Final connected deployment verification
+
+The Production session secret was corrected: the live health endpoint now returns **HTTP 200**, `status:"ok"`, `database:true`, `auth:true`, `authConfiguration:"ready"`, and `commerce:"preview"`. A synthetic `.invalid` QA account labeled “QA · Verificación técnica” verified registration, signed sessions, logout, login and favorite persistence across sessions against the deployed database. Its temporary favorite was removed and the session closed; no checkout or email was submitted. Temporary test credentials/cookies were kept private and discarded.
+
+Hosted GitHub Actions passed for `aa09eed`: https://github.com/codexola/-lite-Atelier/actions/runs/38564497069. The GitHub browser reporter now exposes future failed assertions as workflow annotations; existing list/HTML reports remain. The gallery/media implementation is commit `b23a54e`, with mobile touch targets and wordmark accessibility refinements in `aa09eed`.
+
+The final local emulated-mobile Lighthouse run reports Performance **91**, Accessibility **100**, Best Practices **100**, CLS **0.00055**, TBT **110 ms**, and LCP **3.3 seconds**. This is a laboratory measurement; field metrics and the 2.5-second LCP target remain unverified. Preview SEO remains intentionally restricted. All 54 worn-image exports were checked for successful static delivery in the browser suite; deployed store/product pages and representative asset bytes were also verified after publication.
