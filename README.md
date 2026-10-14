@@ -60,3 +60,5 @@ The original brief did not supply approved stock, production capacity, legal ope
 The camera fitting room is an experimental 2D preview, not photorealistic try-on or a size measurement service. It does not simulate fabric drape, occlusion or actual fit. Photorealistic try-on requires a specialist inference provider and separate consent/quality validation. Verified manufacturing, regional tax/logistics expansion, real advertising and post-launch sales results still require operational inputs and external providers.
 
 Business Studio, secure owner bootstrap, custom catalog/media, fulfillment, promotions, and FASHN configuration: [Business Studio guide](docs/BUSINESS-STUDIO.md).
+
+FASHN VTON 1.5 repository review, optional authenticated GPU worker, licensing requirements and key-only hosted activation: [VTON deployment guide](docs/SELF-HOSTED-VTON.md).

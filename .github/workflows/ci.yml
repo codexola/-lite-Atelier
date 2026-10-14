@@ -14,6 +14,8 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
+      - run: python -m venv /tmp/vton-tests && /tmp/vton-tests/bin/python -m pip install -r services/vton/requirements.lock
+      - run: /tmp/vton-tests/bin/python -m unittest discover -s services/vton -p 'test_*.py' -v
       - run: npm run test:unit
       - run: npm run build
       - run: npx playwright install --with-deps chromium

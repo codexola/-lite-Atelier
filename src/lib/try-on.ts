@@ -1,4 +1,3 @@
-import Fashn from 'fashn';
 import sharp from 'sharp';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -8,24 +7,17 @@ import { z } from 'zod';
 import { db, getProducts } from './db';
 import { requireUser, rateLimit, HttpError } from './auth';
 import { garmentAsset, productColors } from './garment-assets';
+import {
+  providerClient,
+  tryOnConfiguration,
+  predictionReference,
+  inferenceCategory,
+} from './try-on-provider';
 const json = (value: unknown, status = 200) =>
   NextResponse.json(value, {
     status,
     headers: { 'Cache-Control': 'no-store' },
   });
-export function providerClient() {
-  if (!process.env.FASHN_API_KEY)
-    throw new HttpError(
-      503,
-      'El probador realista necesita configurar FASHN_API_KEY. La cámara local sigue disponible.',
-    );
-  return new Fashn({
-    apiKey: process.env.FASHN_API_KEY,
-    maxRetries: 0,
-    timeout: 20000,
-    logLevel: 'off',
-  });
-}
 export async function initializeTryOn(c: Awaited<ReturnType<typeof db>>) {
   await c.execute(
     "CREATE TABLE IF NOT EXISTS try_on_jobs(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES users(id),product_id TEXT NOT NULL,color TEXT NOT NULL,request_key TEXT UNIQUE NOT NULL,fingerprint TEXT NOT NULL,provider_id TEXT,status TEXT NOT NULL DEFAULT 'submitting',created_at INTEGER NOT NULL,expires_at INTEGER NOT NULL)",
@@ -39,13 +31,7 @@ export async function tryOnGet(
   key: string,
   req: NextRequest,
 ): Promise<Response | null> {
-  if (key === 'try-on/config')
-    return json({
-      provider: 'FASHN',
-      configured: !!process.env.FASHN_API_KEY,
-      model: 'tryon-max',
-      localPreview: true,
-    });
+  if (key === 'try-on/config') return json(tryOnConfiguration());
   if (!key.startsWith('try-on/jobs/')) return null;
   const user = await requireUser(),
     id = z.uuid().parse(key.slice(12)),
@@ -71,7 +57,7 @@ export async function tryOnGet(
   await rateLimit('try-on-poll', user.id, 150);
   try {
     const result = await providerClient().predictions.status(
-      String(job.provider_id),
+      predictionReference(String(job.provider_id)),
     );
     const update = await c.execute({
       sql: "UPDATE try_on_jobs SET status=? WHERE id=? AND user_id=? AND status<>'deleted'",
@@ -205,10 +191,20 @@ export async function startTryOn(req: NextRequest) {
       'No se pudo abrir la foto. Usa una imagen de hasta 24 megapíxeles.',
     );
   }
+  const cutout = garmentAsset(product, input.color);
+  const gallery = product.gallery?.filter(
+    (g) => !g.color || g.color === input.color,
+  );
   const reference =
-    garmentAsset(product, input.color) ||
-    product.gallery?.find((g) => g.color === input.color)?.src ||
-    product.image;
+    cutout ||
+    gallery?.find((g) => g.angle === 'front')?.src ||
+    gallery?.[0]?.src ||
+    (input.color === productColors(product)[0] ? product.image : null);
+  if (!reference)
+    throw new HttpError(
+      400,
+      'Añade una fotografía de esta prenda en el color seleccionado antes de generar el look.',
+    );
   let garment: Buffer;
   if (reference.startsWith('/api/media/')) {
     const row = (
@@ -268,23 +264,40 @@ export async function startTryOn(req: NextRequest) {
     return json({ id: prior.id, status: prior.status }, 202);
   }
   try {
-    const result = await providerClient().predictions.run({
-      model_name: 'tryon-max',
-      inputs: {
-        model_image: 'data:image/jpeg;base64,' + person.toString('base64'),
-        product_image: 'data:image/jpeg;base64,' + garment.toString('base64'),
-        generation_mode: 'quality',
-        num_images: 1,
-        resolution: '1k',
-        output_format: 'jpeg',
-        return_base64: true,
-      },
-    });
+    const inputs = {
+      model_image: 'data:image/jpeg;base64,' + person.toString('base64'),
+      product_image: 'data:image/jpeg;base64,' + garment.toString('base64'),
+      generation_mode: 'quality',
+      num_images: 1,
+      resolution: '1k',
+      output_format: 'jpeg',
+      return_base64: true,
+      ...(tryOnConfiguration().model === 'fashn-vton-1.5'
+        ? {
+            category: inferenceCategory(product),
+            garment_photo_type:
+              cutout || (!gallery?.length && reference === product.image)
+                ? 'flat-lay'
+                : 'model',
+          }
+        : {}),
+    } as const;
+    const client = providerClient();
+    const result =
+      tryOnConfiguration().model === 'fashn-vton-1.5'
+        ? await client.post<{ id: string; error?: unknown }>('/v1/run', {
+            body: { model_name: 'fashn-vton-1.5', inputs },
+          })
+        : await client.predictions.run({ model_name: 'tryon-max', inputs });
     if (result.error || !result.id)
       throw new Error('Provider rejected generation.');
     await c.execute({
       sql: "UPDATE try_on_jobs SET provider_id=?,status='starting' WHERE id=? AND status<>'deleted'",
-      args: [result.id, id],
+      args: [
+        (tryOnConfiguration().model === 'fashn-vton-1.5' ? 'vton:' : '') +
+          result.id,
+        id,
+      ],
     });
     return json({ id, status: 'starting' }, 202);
   } catch {
@@ -303,9 +316,33 @@ export async function deleteTryOn(body: unknown) {
     input = z.object({ id: z.uuid() }).parse(body),
     c = await db();
   await initializeTryOn(c);
+  const job = (
+    await c.execute({
+      sql: 'SELECT provider_id FROM try_on_jobs WHERE id=? AND user_id=?',
+      args: [input.id, user.id],
+    })
+  ).rows[0];
   await c.execute({
     sql: "UPDATE try_on_jobs SET status='deleted',provider_id=NULL WHERE id=? AND user_id=?",
     args: [input.id, user.id],
   });
+  if (
+    String(job?.provider_id || '').startsWith('vton:') &&
+    tryOnConfiguration().model === 'fashn-vton-1.5'
+  ) {
+    try {
+      await fetch(
+        new URL(
+          '/v1/jobs/' + encodeURIComponent(String(job!.provider_id).slice(5)),
+          process.env.VTON_SERVICE_URL!,
+        ),
+        {
+          method: 'DELETE',
+          headers: { Authorization: 'Bearer ' + process.env.VTON_SERVICE_KEY! },
+          signal: AbortSignal.timeout(5000),
+        },
+      );
+    } catch {}
+  }
   return json({ ok: true, providerCancelled: false });
 }

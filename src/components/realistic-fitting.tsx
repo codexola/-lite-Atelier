@@ -35,10 +35,14 @@ export function RealisticFitting({
     poll = useRef<ReturnType<typeof setTimeout> | null>(null),
     session = useRef(0),
     started = useRef(0);
+  const [provider, setProvider] = useState('FASHN');
   const generation = useRef({ original: '', label: '' });
   useEffect(() => {
     void api('try-on/config')
-      .then((r) => setConfigured(r.configured))
+      .then((r) => {
+        setConfigured(r.configured);
+        setProvider(r.provider);
+      })
       .catch(() => {});
     return () => {
       session.current++;
@@ -160,13 +164,15 @@ export function RealisticFitting({
           </h2>
           <p>
             Genera una fotografía de tu look, con una prenda integrada en tu
-            imagen. La generación se procesa en FASHN, después de tu
+            imagen. La generación se procesa en {provider}, después de tu
             autorización.
           </p>
         </div>
         <span className={'provider-status ' + (configured ? 'ready' : '')}>
           <i />
-          {configured ? 'FASHN conectado' : 'FASHN pendiente de configuración'}
+          {configured
+            ? provider + ' · configurado'
+            : provider + ' · pendiente de configuración'}
         </span>
       </div>
       <div className="realistic-layout">
@@ -261,8 +267,8 @@ export function RealisticFitting({
               onChange={(e) => setConsent(e.target.checked)}
             />
             <span>
-              Autorizo enviar esta foto y la referencia de prenda a FASHN para
-              generar mi look. Tengo permiso para utilizar la foto.{' '}
+              Autorizo enviar esta foto y la referencia de prenda a {provider}{' '}
+              para generar mi look. Tengo permiso para utilizar la foto.{' '}
               <Link href="/politicas/privacidad">Privacidad del probador</Link>.
             </span>
           </label>
@@ -276,8 +282,8 @@ export function RealisticFitting({
           </button>
           {!configured && (
             <p className="provider-note">
-              La marca debe configurar su cuenta FASHN para habilitar la
-              generación. La vista previa local de cámara sigue disponible.
+              La marca debe configurar su servicio de generación para habilitar
+              la generación. La vista previa local de cámara sigue disponible.
             </p>
           )}
           {error && (

@@ -252,3 +252,96 @@ test('body fitting follows shoulders, hips and arms and rejects hidden or invali
     null,
   );
 });
+
+test('try-on activation needs only the hosted key by default; private GPU endpoints fail closed', async () => {
+  const {
+    tryOnConfiguration,
+    providerClient,
+    predictionReference,
+    inferenceCategory,
+  } = await import('../src/lib/try-on-provider');
+  const names = [
+    'TRY_ON_PROVIDER',
+    'FASHN_API_KEY',
+    'VTON_SERVICE_URL',
+    'VTON_SERVICE_KEY',
+  ];
+  const old = names.map((n) => process.env[n]);
+  try {
+    names.forEach((n) => delete process.env[n]);
+    assert.equal(tryOnConfiguration().configured, false);
+    assert.throws(() => providerClient());
+    process.env.FASHN_API_KEY = 'test-only-hosted-key';
+    assert.equal(tryOnConfiguration().configured, true);
+    assert.equal(tryOnConfiguration().model, 'tryon-max');
+    assert.equal(providerClient().apiKey, 'test-only-hosted-key');
+    process.env.TRY_ON_PROVIDER = 'unknown';
+    assert.equal(tryOnConfiguration().configured, false);
+    process.env.TRY_ON_PROVIDER = 'self-hosted';
+    assert.equal(tryOnConfiguration().configured, false);
+    process.env.VTON_SERVICE_KEY = 'test-only-private-key-12345678901234567890';
+    for (const url of [
+      'http://worker.example.com',
+      'https://user:password@worker.example.com',
+      'https://worker.example.com?key=invalid',
+    ]) {
+      process.env.VTON_SERVICE_URL = url;
+      assert.equal(tryOnConfiguration().configured, false);
+    }
+    process.env.VTON_SERVICE_URL = 'https://worker.example.com';
+    assert.equal(tryOnConfiguration().configured, true);
+    assert.equal(providerClient().baseURL, 'https://worker.example.com');
+    let transported = false;
+    const client = providerClient().withOptions({
+      fetch: async (_url, init) => {
+        assert.equal(
+          new Headers(init?.headers).get('Authorization'),
+          'Bearer ' + process.env.VTON_SERVICE_KEY,
+        );
+        const payload = JSON.parse(String(init?.body));
+        assert.equal(payload.model_name, 'fashn-vton-1.5');
+        transported = true;
+        return new Response(JSON.stringify({ id: 'gpu-job', error: null }), {
+          status: 202,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      },
+    });
+    const submitted = await client.post<{ id: string }>('/v1/run', {
+      body: { model_name: 'fashn-vton-1.5', inputs: { category: 'tops' } },
+    });
+    assert.equal(submitted.id, 'gpu-job');
+    assert.equal(transported, true);
+    assert.equal(predictionReference('vton:job-id'), 'job-id');
+    assert.throws(() => predictionReference('hosted-job-id'));
+    assert.equal(
+      inferenceCategory({
+        slug: 'gabardina-pluie',
+        name: 'Gabardina Pluie',
+        category: 'Abrigos',
+      }),
+      'tops',
+    );
+    assert.equal(
+      inferenceCategory({
+        slug: 'falda-ligne',
+        name: 'Falda Ligne',
+        category: 'Faldas',
+      }),
+      'bottoms',
+    );
+    assert.equal(
+      inferenceCategory({
+        slug: 'mono-eclipse',
+        name: 'Mono Éclipse',
+        category: 'Sastrería',
+      }),
+      'one-pieces',
+    );
+  } finally {
+    names.forEach((n, i) => {
+      if (old[i] === undefined) delete process.env[n];
+      else process.env[n] = old[i];
+    });
+  }
+});

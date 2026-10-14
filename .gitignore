@@ -9,3 +9,8 @@ test-results/
 .vercel/
 
 /public/models/pose/
+
+__pycache__/
+*.pyc
+services/vton/.venv/
+services/vton/weights/

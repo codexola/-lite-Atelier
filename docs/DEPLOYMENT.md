@@ -77,3 +77,5 @@ The project snapshot contains installed files, not live server processes. Restar
 ## Hosted realistic fitting
 
 Set the server-only `FASHN_API_KEY` in Vercel Production and redeploy. `/api/try-on/config` reports key presence without exposing values. A valid provider account and credits are required. Read [Business Studio and realistic fitting](BUSINESS-STUDIO.md) for privacy, consent, test boundaries and the private local camera alternative.
+
+The optional repository-based FASHN VTON 1.5 worker needs a separate GPU service and appropriate dependency usage rights; it cannot run inside Vercel. The default hosted integration still activates with only FASHN_API_KEY and redeployment. See [self-hosted feasibility and setup](SELF-HOSTED-VTON.md).

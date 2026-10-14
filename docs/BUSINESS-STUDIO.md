@@ -55,3 +55,7 @@ The two uploaded development plans inform the feature matrix below. Their sugges
 | Automatic deployment                                | GitHub main → linked Vercel project                                                                                 | Existing project bindings and production environment variables               |
 
 Automatic taxation, carrier API labels, physical fit measurement, global translated catalogs and merchant payout reconciliation beyond the implemented payment/return workflows are not claimed. New shipping destinations can be configured, but business readiness for international selling requires policy, tax and gateway review.
+
+## Optional repository-based worker
+
+The actual FASHN VTON 1.5 pipeline now has a separate authenticated GPU-worker implementation and a private service adapter. Hosted FASHN remains the default key-only Vercel activation. The worker has not run GPU inference here and is not active on the shop. Its mandatory parser has a research/evaluation-only inherited license, so commercial usage rights must be resolved first. See [verified feasibility, implementation and deployment steps](SELF-HOSTED-VTON.md).
