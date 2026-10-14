@@ -28,3 +28,7 @@ Automated checks do not constitute a complete accessibility certification, legal
 After correcting the initial loading shift, Lighthouse reported Performance **94**, Accessibility **100**, and Best Practices **100**, with CLS **0**, TBT **50 ms**, and LCP **3.1 seconds** in this local emulated-mobile run. The 2.5-second LCP target has not been demonstrated; actual deployment/CDN and field measurements remain necessary. The SEO audit's remaining failing item is the intentional preview `noindex`/robots restriction, which changes only after approved live launch. All other audited SEO checks passed.
 
 The responsive and accessibility browser checks were rerun after this correction: **2 passed**. No assertions were disabled to obtain these results.
+
+## Fresh-machine verification
+
+A hosted CI browser-test startup failure prompted a clean-directory check. A file-based database override previously required its parent directory to exist. Initialization now creates the parent for file URLs, while hosted libSQL URLs retain their normal remote behavior. The complete browser suite was rerun against an entirely new, previously uncreated database directory: **10 passed**. Test configuration explicitly isolates email/payment bindings and uses Playwright's installed Chromium on GitHub Actions.

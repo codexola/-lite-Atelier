@@ -10,7 +10,10 @@ async function post(request: APIRequestContext, url: string, data: unknown) {
   return request.post('/api/' + url, { data, headers: origin });
 }
 test.beforeAll(async () => {
-  const c = createClient({ url: 'file:' + path.resolve('.data/e2e.db') });
+  const c = createClient({
+    url:
+      process.env.ATELIER_E2E_DB_URL || 'file:' + path.resolve('.data/e2e.db'),
+  });
   await c.execute({
     sql: "INSERT OR IGNORE INTO users(id,email,name,password,role) VALUES('e2e-admin',?,'Test Admin',?,'admin')",
     args: [adminEmail, hashPassword(password)],
@@ -381,7 +384,10 @@ test('signed payment webhooks settle once, reject wrong totals, and release inve
 }) => {
   const { default: Stripe } = await import('stripe');
   const stripe = new Stripe('sk_test_fixture_not_real');
-  const c = createClient({ url: 'file:' + path.resolve('.data/e2e.db') });
+  const c = createClient({
+    url:
+      process.env.ATELIER_E2E_DB_URL || 'file:' + path.resolve('.data/e2e.db'),
+  });
   const items = [
     {
       productId: 'p-noir',

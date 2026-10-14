@@ -1,6 +1,7 @@
 import { createClient, type Client } from '@libsql/client';
 import { mkdirSync } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { products, sizes, colors } from './catalog';
 const globals = globalThis as unknown as {
   atelierDb?: Client;
@@ -13,12 +14,17 @@ function client() {
   if (!databaseConfigured())
     throw new Error('La base de datos no está configurada.');
   if (!globals.atelierDb) {
-    if (!process.env.TURSO_DATABASE_URL)
-      mkdirSync(path.join(process.cwd(), '.data'), { recursive: true });
+    const url =
+      process.env.TURSO_DATABASE_URL ||
+      `file:${path.join(process.cwd(), '.data/atelier.db')}`;
+    if (url.startsWith('file:')) {
+      const filename = url.slice(5).startsWith('/')
+        ? fileURLToPath(url)
+        : path.resolve(url.slice(5));
+      mkdirSync(path.dirname(filename), { recursive: true });
+    }
     globals.atelierDb = createClient({
-      url:
-        process.env.TURSO_DATABASE_URL ||
-        `file:${path.join(process.cwd(), '.data/atelier.db')}`,
+      url,
       authToken: process.env.TURSO_AUTH_TOKEN,
     });
   }
