@@ -21,7 +21,11 @@ export default defineConfig({
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },
-  reporter: [['list'], ['html', { open: 'never' }]],
+  reporter: [
+    ['list'],
+    ['html', { open: 'never' }],
+    ...(process.env.GITHUB_ACTIONS ? [['github'] as ['github']] : []),
+  ],
   webServer: {
     command: 'npm run start',
     url: 'http://localhost:3000/api/health',

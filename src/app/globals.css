@@ -5225,3 +5225,21 @@ svg {
   inset: 0;
   display: block;
 }
+
+.card-variant-row {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.card-color-options button {
+  width: 28px;
+  height: 28px;
+}
+@media (max-width: 700px) {
+  .card-color-options button {
+    width: 28px;
+    height: 28px;
+  }
+  .card-variant-row > span {
+    font-size: 8px;
+  }
+}
