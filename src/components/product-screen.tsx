@@ -2,20 +2,38 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowUpRight, Heart, Truck, ChevronRight } from 'lucide-react';
+import {
+  ArrowUpRight,
+  Heart,
+  Truck,
+  ChevronRight,
+  Maximize2,
+  X,
+} from 'lucide-react';
 import { type Product, colors, sizes, money } from '@/lib/catalog';
+import { useDialog } from './use-dialog';
 import { useAtelier, api, track } from './atelier-provider';
 export function ProductScreen({ product: p }: { product: Product }) {
   const { add, notify } = useAtelier();
   const [size, setSize] = useState('');
   const [color, setColor] = useState('Noir');
   const [saved, setSaved] = useState(false);
+  const [zoom, setZoom] = useState(false);
+  useDialog(zoom, '.piece-lightbox', () => setZoom(false));
   useEffect(() => {
     track('product_view');
   }, []);
   return (
     <div className="product-detail">
       <div className="product-gallery">
+        <span className="gallery-index">THE PIECE / 01</span>
+        <button
+          className="gallery-zoom"
+          aria-label="Ampliar imagen de la pieza"
+          onClick={() => setZoom(true)}
+        >
+          <Maximize2 size={17} />
+        </button>
         <Image
           src={p.image}
           alt={p.name + ', vista editorial de la pieza'}
@@ -27,6 +45,34 @@ export function ProductScreen({ product: p }: { product: Product }) {
           ÉLITE ATELIER / {p.collection.toUpperCase()}
         </span>
       </div>
+      {zoom && (
+        <div className="piece-lightbox-backdrop" onClick={() => setZoom(false)}>
+          <div
+            className="piece-lightbox"
+            role="dialog"
+            aria-modal="true"
+            aria-label={'Imagen ampliada de ' + p.name}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="lightbox-close"
+              aria-label="Cerrar imagen ampliada"
+              onClick={() => setZoom(false)}
+            >
+              <X size={22} />
+            </button>
+            <Image
+              src={p.image}
+              alt={p.name + ' · detalle conceptual'}
+              fill
+              sizes="90vw"
+            />
+            <span>
+              {p.name} / {p.collection}
+            </span>
+          </div>
+        </div>
+      )}
       <div className="product-info">
         <div className="breadcrumbs">
           <Link href="/">Inicio</Link>

@@ -241,6 +241,30 @@ export function AccountScreen({ products }: { products: Product[] }) {
         </h1>
         <p>Tu identidad, tus piezas y todo lo que aún está por crear.</p>
       </div>
+      <div className="account-overview">
+        {[
+          ['orders', 'Tus pedidos', data.orders.length, ShoppingBag],
+          ['favorites', 'Piezas guardadas', data.favorites.length, Heart],
+          ['designs', 'Tu universo creativo', data.designs.length, Scissors],
+        ].map(([id, label, count, Icon]) => {
+          const C = Icon as typeof Heart;
+          return (
+            <button
+              key={String(id)}
+              className={tab === id ? 'active' : ''}
+              onClick={() => setTab(String(id))}
+            >
+              <C size={22} strokeWidth={1} />
+              <span>
+                {String(label)}
+                <small>EXPLORAR MI ATELIER</small>
+              </span>
+              <strong>{String(count).padStart(2, '0')}</strong>
+              <ArrowUpRight size={17} />
+            </button>
+          );
+        })}
+      </div>
       <div className="page-container account-layout">
         <aside className="account-nav">
           <h3>Mi atelier</h3>

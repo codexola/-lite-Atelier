@@ -7,6 +7,7 @@ import { collections } from '@/lib/catalog';
 import { SectionTitle } from '@/components/section-title';
 import { ProductCard } from '@/components/product-card';
 import { Newsletter } from '@/components/footer';
+import { AtelierWorld } from '@/components/atelier-world';
 export const dynamic = 'force-dynamic';
 export default async function Home() {
   const products = await getProducts();
@@ -19,9 +20,9 @@ export default async function Home() {
   ]);
   return (
     <>
-      <section className="hero">
+      <section className="hero campaign-hero">
         <Image
-          src="/images/hero.webp"
+          src="/images/campaign.webp"
           alt="Editorial de moda Élite Atelier, sastrería negra bajo la luz del atelier"
           fill
           priority
@@ -56,6 +57,14 @@ export default async function Home() {
             <ArrowRight size={19} className="rotate" />
           </a>
         </div>
+        <div className="campaign-seal">
+          <span>É / A</span>
+          <small>
+            YOUR STYLE.
+            <br />
+            YOUR STORY.
+          </small>
+        </div>
         <span className="hero-side">ÉLITE ATELIER — COLOMBIA</span>
       </section>
       <section className="brand-values">
@@ -80,6 +89,7 @@ export default async function Home() {
           </span>
         </div>
       </section>
+      <AtelierWorld />
       <section id="signature" className="section">
         <SectionTitle
           eyebrow="PIEZAS QUE HABLAN DE TI"

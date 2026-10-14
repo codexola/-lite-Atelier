@@ -40,7 +40,7 @@ export function CommunityScreen({ initialPosts }: { initialPosts: any[] }) {
       : data.posts.filter((p: any) => p.category === tab);
   return (
     <>
-      <div className="page-heading">
+      <div className="page-heading community-heading">
         <span className="eyebrow">PERSONAS DISTINTAS. UNA MISMA VISIÓN.</span>
         <h1>
           La belleza de <em>conectar.</em>
@@ -50,6 +50,37 @@ export function CommunityScreen({ initialPosts }: { initialPosts: any[] }) {
           y compartir lo que te hace único.
         </p>
       </div>
+      <section className="community-editorial">
+        <div>
+          <span className="eyebrow">EL CÍRCULO ÉLITE</span>
+          <h2>
+            People. Style.
+            <br />
+            <em>Identity. Community.</em>
+          </h2>
+          <p>
+            La inspiración comienza cuando compartimos nuestra forma de ver el
+            mundo.
+          </p>
+          <Link href="/co-creacion" className="text-link">
+            Crea algo que hable de ti <ArrowUpRight size={16} />
+          </Link>
+        </div>
+        <div className="community-editorial-images">
+          <Image
+            src="/images/community-1.webp"
+            alt="Estilo personal en la comunidad"
+            width={450}
+            height={540}
+          />
+          <Image
+            src="/images/community-3.webp"
+            alt="Una nueva perspectiva de la moda"
+            width={450}
+            height={540}
+          />
+        </div>
+      </section>
       <div className="page-container">
         <div className="community-toolbar">
           <div className="community-tabs">

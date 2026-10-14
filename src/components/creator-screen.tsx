@@ -1,13 +1,18 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowUpRight, Check, Scissors } from 'lucide-react';
+import { ArrowUpRight, Check } from 'lucide-react';
 import { api, useAtelier } from './atelier-provider';
 import { colors, sizes } from '@/lib/catalog';
 export function CreatorScreen() {
   const [step, setStep] = useState(0);
   const [model, setModel] = useState('Blazer');
+  useEffect(() => {
+    const initial = new URLSearchParams(window.location.search).get('modelo');
+    if (initial && ['Blazer', 'Pantalón', 'Top'].includes(initial))
+      setModel(initial);
+  }, []);
   const [material, setMaterial] = useState('Lana');
   const [color, setColor] = useState('Noir');
   const [detail, setDetail] = useState('Clásico');
@@ -27,7 +32,7 @@ export function CreatorScreen() {
         : '/images/trousers.webp';
   return (
     <>
-      <div className="page-heading">
+      <div className="page-heading studio-heading">
         <span className="eyebrow">CO-CREACIÓN · TU ATELIER PERSONAL</span>
         <h1>
           Diseña tu propia <em>expresión.</em>
@@ -37,8 +42,43 @@ export function CreatorScreen() {
           propuesta o deja que inspire a la comunidad.
         </p>
       </div>
+      <div className="studio-status">
+        <span>
+          <i /> DESIGN STUDIO / ÉLITE ATELIER
+        </span>
+        <span>
+          PROPUESTA CONCEPTUAL · {String(step + 1).padStart(2, '0')} / 04
+        </span>
+      </div>
       <section className="creator-layout">
         <div className="creator-canvas">
+          <div className="studio-rail">
+            {['Blazer', 'Pantalón', 'Top'].map((m) => (
+              <button
+                key={m}
+                aria-label={'Vista de ' + m}
+                aria-pressed={model === m}
+                className={model === m ? 'active' : ''}
+                onClick={() => {
+                  setModel(m);
+                  setSaved(false);
+                }}
+              >
+                <Image
+                  src={
+                    m === 'Top'
+                      ? '/images/top.webp'
+                      : m === 'Pantalón'
+                        ? '/images/trousers.webp'
+                        : '/images/blazer.webp'
+                  }
+                  alt=""
+                  width={65}
+                  height={82}
+                />
+              </button>
+            ))}
+          </div>
           <span className="eyebrow">ÉLITE ATELIER / DESIGN STUDIO</span>
           <Image
             src={image}
@@ -65,6 +105,12 @@ export function CreatorScreen() {
             Una propuesta conceptual que comienza contigo. La imagen representa
             la silueta; las opciones elegidas se guardan como especificaciones.
           </p>
+          <div
+            className="studio-progress"
+            aria-label={'Paso ' + (step + 1) + ' de 4'}
+          >
+            <span style={{ width: (step + 1) * 25 + '%' }} />
+          </div>
           <div className="creator-tabs">
             {['Modelo', 'Material', 'Color', 'Detalles'].map((s, i) => (
               <button
@@ -72,6 +118,7 @@ export function CreatorScreen() {
                 className={step === i ? 'active' : ''}
                 onClick={() => setStep(i)}
               >
+                <small>{String(i + 1).padStart(2, '0')}</small>
                 {s}
               </button>
             ))}
@@ -89,7 +136,19 @@ export function CreatorScreen() {
                       setSaved(false);
                     }}
                   >
-                    <Scissors size={24} strokeWidth={1} />
+                    <Image
+                      src={
+                        m === 'Top'
+                          ? '/images/top.webp'
+                          : m === 'Pantalón'
+                            ? '/images/trousers.webp'
+                            : '/images/blazer.webp'
+                      }
+                      alt=""
+                      width={95}
+                      height={110}
+                      className="model-thumbnail"
+                    />
                     {m}
                     <small>
                       {m === 'Blazer'

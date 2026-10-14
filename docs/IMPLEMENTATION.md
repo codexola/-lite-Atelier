@@ -43,3 +43,7 @@ Visual system: charcoal, warm ivory, champagne; Cormorant Garamond and DM Sans s
 - Real refunds, delivery labels, production capacity and legal review belong to configured providers and the brand's operation.
 
 See VALIDATION.md for executed checks and their boundaries; DEPLOYMENT.md for the actual launch prerequisites.
+
+## Sample-led editorial redesign
+
+The revised visual direction follows the supplied campaign sample with a black/ivory couple portrait, architectural shadows, champagne typography and a compact three-part platform showcase. This includes a functioning landing silhouette selector that carries the chosen model into co-creation; visual model thumbnails and numbered studio steps; keyboard-accessible enlarged product photography; image-led collection and community layouts; and account overview cards linked to the corresponding sections. Original campaign imagery remains conceptual. Shared page, form, product and checkout surfaces carry the same palette and spacing across the system. The redesign does not change stock, payment or manufacturing commitments.

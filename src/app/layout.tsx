@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Élite Atelier — Viste tu identidad',
     description: 'No naciste para encajar. Naciste para ser tú.',
-    images: [{ url: '/images/hero.webp', width: 1536, height: 1024 }],
+    images: [{ url: '/images/campaign.webp', width: 1536, height: 1024 }],
     locale: 'es_CO',
     type: 'website',
   },

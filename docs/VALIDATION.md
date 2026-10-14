@@ -7,7 +7,7 @@ Validated on 14 October 2026 against the local production build with Node.js 24.
 | Frozen dependency install (`npm ci`) | Passed; repeatable without changing source or data                                                                      |
 | TypeScript / production build        | Passed                                                                                                                  |
 | Domain tests                         | 7 passed; no failures or skipped tests                                                                                  |
-| Production-browser suite             | 10 passed; no failures or skipped tests                                                                                 |
+| Production-browser suite             | 11 passed; no failures or skipped tests                                                                                 |
 | Responsive overflow                  | Passed at 360, 390, 768, 1024 and 1440 px for home, catalog, product, creator, account and community                    |
 | Automated accessibility              | No WCAG A/AA violations in the scanned home, account, contact and identity pages; dialog focus wrapping/Escape verified |
 | Local database readiness             | 6 conceptual products / 90 variants; health reports database/auth ready, preview commerce                               |
@@ -23,7 +23,7 @@ Screenshots and HTML/trace test reports are generated in ignored `test-results/`
 
 Automated checks do not constitute a complete accessibility certification, legal review, field Core Web Vitals result or real customer acceptance. Check actual Vercel data persistence, account/admin flows, provider sandbox behavior, email delivery, hosted backup/restore and commercial content before launch.
 
-## Mobile laboratory performance
+## Mobile laboratory performance (initial design)
 
 After correcting the initial loading shift, Lighthouse reported Performance **94**, Accessibility **100**, and Best Practices **100**, with CLS **0**, TBT **50 ms**, and LCP **3.1 seconds** in this local emulated-mobile run. The 2.5-second LCP target has not been demonstrated; actual deployment/CDN and field measurements remain necessary. The SEO audit's remaining failing item is the intentional preview `noindex`/robots restriction, which changes only after approved live launch. All other audited SEO checks passed.
 
@@ -40,3 +40,9 @@ The receipt regression now verifies that completing the active checkout empties 
 ## Connected Vercel project
 
 On 14 October 2026, https://liteatelierdemo.vercel.app/ and `/co-creacion` both returned HTTP 200. Its health endpoint returned HTTP 503 with `database:true`, `auth:false`, `commerce:"preview"`, and `payment:false`. These checks demonstrate deployed public pages and database readiness, but authenticated workflows still require Production `AUTH_SECRET` and redeployment. Real payment and email delivery remain unverified.
+
+## Editorial redesign validation
+
+The sample-led redesign adds an original black/ivory campaign photograph, a three-part landing experience with an interactive silhouette selector, studio handoff via a validated model query, visual studio thumbnails and numbered steps, product image enlargement with Escape/focus restoration, collection/community editorial headers, and account navigation cards. The production build, formatting check, and complete browser suite passed: **11 tests**, including the new landing-to-studio handoff and enlarged-image checks. Existing account, checkout, moderation, inventory, responsive and accessibility checks remain enabled.
+
+A new local emulated-mobile Lighthouse run of the redesigned landing reported Performance **91**, Accessibility **100**, Best Practices **100**, CLS **0.004**, TBT **100 ms**, and LCP **3.4 seconds**. The wordmark accessible-name advisory was corrected afterwards. These are laboratory results, not field metrics. Preview SEO remains intentionally restricted.

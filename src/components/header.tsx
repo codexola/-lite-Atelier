@@ -44,7 +44,11 @@ export function Header() {
         >
           {menu ? <X /> : <Menu size={21} />}
         </button>
-        <Link className="wordmark" href="/" aria-label="Élite Atelier, inicio">
+        <Link
+          className="wordmark"
+          href="/"
+          aria-label="Élite Atelier, Wear your own identity, inicio"
+        >
           ÉLITE ATELIER<span>WEAR YOUR OWN IDENTITY</span>
         </Link>
         <nav className="desktop-nav" aria-label="Navegación principal">

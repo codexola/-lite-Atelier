@@ -60,6 +60,15 @@ test('product selection, persisted cart, checkout, and protected receipt work en
 }) => {
   await page.goto('/producto/blazer-noir');
   await page.getByRole('button', { name: 'Solo esenciales' }).click();
+  await page
+    .getByRole('button', { name: 'Ampliar imagen de la pieza' })
+    .click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(
+    page.getByRole('button', { name: 'Ampliar imagen de la pieza' }),
+  ).toBeFocused();
   await page.getByRole('button', { name: 'AÑADIR A MI SELECCIÓN' }).click();
   await expect(page.getByRole('status')).toContainText('Selecciona una talla');
   await page.getByRole('button', { name: 'M', exact: true }).click();
@@ -109,6 +118,23 @@ test('product selection, persisted cart, checkout, and protected receipt work en
   ).toBeVisible();
   await page.goto('/carrito');
   await expect(page.getByText('Top Lumière', { exact: true })).toBeVisible();
+});
+test('landing studio selection carries the chosen silhouette into the configurator', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Solo esenciales' }).click();
+  await page.getByRole('button', { name: 'Explorar silueta Top' }).click();
+  await expect(
+    page.getByRole('button', { name: 'Explorar silueta Top' }),
+  ).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('link', { name: 'ABRIR MI DESIGN STUDIO' }).click();
+  await expect(
+    page.getByRole('button', { name: 'Vista de Top' }),
+  ).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('.creator-details')).toContainText('TOP');
+  await page.getByRole('button', { name: 'Vista de Pantalón' }).click();
+  await expect(page.locator('.creator-details')).toContainText('PANTALÓN');
 });
 test('identity quiz completes four questions with deterministic recommendations', async ({
   page,
