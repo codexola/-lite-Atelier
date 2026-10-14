@@ -38,7 +38,10 @@ test('private photo fitting runs real local AI, retains the overlay, switches ga
   const headers = await request.get('/probador-virtual');
   expect(headers.headers()['permissions-policy']).toContain('camera=(self)');
   const before = requests.length;
-  await page.getByLabel('Subir foto local').setInputFiles(fixture);
+  await page
+    .locator('.fitting-stage-actions:visible')
+    .getByLabel('Subir foto local')
+    .setInputFiles(fixture);
   await expect(page.locator('.fitting-status [role="status"]')).toHaveText(
     'Cuerpo detectado',
     { timeout: 90000 },
@@ -215,11 +218,14 @@ test('denied camera permission and unsupported photos give useful recovery witho
   await expect(
     page.getByRole('button', { name: 'ACTIVAR MI CÁMARA' }),
   ).toBeEnabled();
-  await page.getByLabel('Subir foto local').setInputFiles({
-    name: 'unsupported.svg',
-    mimeType: 'image/svg+xml',
-    buffer: Buffer.from('<svg/>'),
-  });
+  await page
+    .locator('.fitting-stage-actions:visible')
+    .getByLabel('Subir foto local')
+    .setInputFiles({
+      name: 'unsupported.svg',
+      mimeType: 'image/svg+xml',
+      buffer: Buffer.from('<svg/>'),
+    });
   await expect(page.locator('.fitting-error[role="alert"]')).toContainText(
     'JPG, PNG o WebP',
   );

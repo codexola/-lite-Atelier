@@ -166,6 +166,7 @@ test('photo capture, explicit provider consent, progress, comparison and memory 
   await page.goto('/probador-virtual');
   await page.getByRole('button', { name: 'Solo esenciales' }).click();
   await page
+    .locator('.fitting-stage-actions:visible')
     .getByLabel('Subir foto local')
     .setInputFiles('public/images/products/blazer-noir/noir-front.webp');
   await expect(page.locator('.fitting-status [role="status"]')).toHaveText(
