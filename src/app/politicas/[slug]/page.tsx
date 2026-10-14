@@ -56,7 +56,7 @@ const policies: Record<
       ],
       [
         'Probador y cámara',
-        'La cámara se activa únicamente con tu permiso. Los fotogramas, fotos locales y puntos de seguimiento se procesan en tu dispositivo; no se suben al servidor ni se guardan en tu cuenta. Puedes apagar la cámara y borrar la foto, o descargar una vista previa en tu propio dispositivo. La superposición experimental no determina medidas ni reproduce el ajuste real de la prenda.',
+        'La cámara se activa únicamente con tu permiso. El seguimiento y la superposición local se procesan en tu dispositivo. La generación realista es una función separada: solo después de tu autorización explícita se envían la foto seleccionada y la referencia de prenda a FASHN. No guardamos las fotografías ni resultados en tu cuenta o biblioteca pública. El servidor conserva durante un máximo de una hora un identificador de trabajo, usuario, prenda y huella técnica de la solicitud para controlar acceso y evitar duplicados. Los resultados se solicitan en formato privado base64; el proveedor tiene sus propias condiciones de tratamiento y conservación. Borrar la experiencia elimina las vistas locales y el acceso del trabajo, pero no cancela una generación ya enviada al proveedor. Las imágenes generadas pueden variar detalles y no garantizan medidas o ajuste físico.',
       ],
       [
         'Proveedores y seguridad',

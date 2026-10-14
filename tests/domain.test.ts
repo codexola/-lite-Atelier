@@ -17,7 +17,7 @@ test('style recommendation is deterministic with ties and rejects incomplete ans
   assert.throws(() => styleResult([1, 2]));
   assert.throws(() => styleResult([0, 0, 0, 3]));
 });
-test('checkout rejects foreign countries, impossible quantities, and missing acceptance', () => {
+test('checkout rejects malformed countries, impossible quantities, and missing acceptance', () => {
   const valid = {
     email: 'test@example.com',
     name: 'Test User',
@@ -31,7 +31,7 @@ test('checkout rejects foreign countries, impossible quantities, and missing acc
   };
   assert.ok(checkoutSchema.safeParse(valid).success);
   assert.equal(
-    checkoutSchema.safeParse({ ...valid, country: 'US' }).success,
+    checkoutSchema.safeParse({ ...valid, country: 'USA' }).success,
     false,
   );
   assert.equal(
@@ -138,13 +138,13 @@ test('Wompi order reference is fetched from the authoritative API, not unsigned 
   assert.equal(result.reference, actualReference);
 });
 
-test('all 18 garments have front, side, back and transparent camera assets for their actual colors; custom photos keep their own reference', async () => {
+test('all 20 garments have front, side, back and transparent camera assets for their actual colors; custom photos keep their own reference', async () => {
   const { products } = await import('../src/lib/catalog');
   const { productColors, garmentAsset } =
     await import('../src/lib/garment-assets');
   const { productMedia, wornImage } = await import('../src/lib/product-media');
   const { existsSync } = await import('node:fs');
-  assert.equal(products.length, 18);
+  assert.equal(products.length, 20);
   let views = 0;
   let cutouts = 0;
   const sharp = (await import('sharp')).default;
@@ -180,8 +180,8 @@ test('all 18 garments have front, side, back and transparent camera assets for t
       }
     }
   }
-  assert.equal(views, 90);
-  assert.equal(cutouts, 30);
+  assert.equal(views, 96);
+  assert.equal(cutouts, 32);
   const custom = {
     ...products[0],
     image: '/images/custom-approved-product.webp',

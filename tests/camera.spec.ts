@@ -31,7 +31,7 @@ test('private photo fitting runs real local AI, retains the overlay, switches ga
   );
   await page.goto('/probador-virtual');
   await page.getByRole('button', { name: 'Solo esenciales' }).click();
-  await expect(page.getByRole('button', { name: /^Probar / })).toHaveCount(18);
+  await expect(page.getByRole('button', { name: /^Probar / })).toHaveCount(20);
   expect(requests.filter((r) => r.url.includes('/models/pose/'))).toHaveLength(
     0,
   );

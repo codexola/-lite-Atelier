@@ -12,7 +12,7 @@ npm run db:check
 npm run dev
 ```
 
-Development automatically initializes `.data/atelier.db` with 18 clearly labeled conceptual products and 150 size/color variants. A private session key is generated locally. No external credentials are required for local preview workflows. Keep `.data`, `.env*`, and provider credentials out of Git.
+Development automatically initializes `.data/atelier.db` with 20 clearly labeled conceptual products and 160 size/color variants. A private session key is generated locally. No external credentials are required for local preview workflows. Keep `.data`, `.env*`, and provider credentials out of Git.
 
 ## Included
 
@@ -58,3 +58,5 @@ Browser tests run against the production server with their own `.data/e2e.db`. T
 The original brief did not supply approved stock, production capacity, legal operator, delivery terms, or merchant credentials. The initial catalog and imagery are therefore explicitly conceptual. Preview orders do not charge or ship. Both `COMMERCE_MODE=live` and `LAUNCH_APPROVED=true` are required for live checkout, and unapproved products cannot be purchased live.
 
 The camera fitting room is an experimental 2D preview, not photorealistic try-on or a size measurement service. It does not simulate fabric drape, occlusion or actual fit. Photorealistic try-on requires a specialist inference provider and separate consent/quality validation. Verified manufacturing, regional tax/logistics expansion, real advertising and post-launch sales results still require operational inputs and external providers.
+
+Business Studio, secure owner bootstrap, custom catalog/media, fulfillment, promotions, and FASHN configuration: [Business Studio guide](docs/BUSINESS-STUDIO.md).

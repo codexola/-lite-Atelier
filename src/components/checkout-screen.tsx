@@ -1,4 +1,5 @@
 'use client';
+import { ReturnRequest } from './customer-tools';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
@@ -175,6 +176,25 @@ export function CheckoutScreen({ settings }: { settings: Settings }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [key, setKey] = useState('');
+  const [delivery, setDelivery] = useState<any[]>([]),
+    [country, setCountry] = useState('CO'),
+    [shippingMethod, setShippingMethod] = useState(''),
+    [discountCode, setDiscountCode] = useState(''),
+    [quote, setQuote] = useState<any>(null),
+    [addresses, setAddresses] = useState<any[]>([]);
+  useEffect(() => {
+    void api('store/config')
+      .then((r) => {
+        setDelivery(r.shipping);
+        setShippingMethod(
+          r.shipping.find((m: any) => m.country === 'CO')?.id || '',
+        );
+      })
+      .catch(() => {});
+    void api('addresses')
+      .then((r) => setAddresses(r.addresses))
+      .catch(() => {});
+  }, []);
   useEffect(() => {
     track('checkout_start');
   }, []);
@@ -258,7 +278,9 @@ export function CheckoutScreen({ settings }: { settings: Settings }) {
                   address: f.get('address'),
                   city: f.get('city'),
                   postal: f.get('postal'),
-                  country: 'CO',
+                  country,
+                  shippingMethod: shippingMethod || undefined,
+                  discountCode: discountCode || undefined,
                   accepted: true,
                   items: cart.map((i) => ({
                     productId: i.productId,
@@ -339,8 +361,116 @@ export function CheckoutScreen({ settings }: { settings: Settings }) {
               </label>
               <label className="field full">
                 <span>País</span>
-                <input value="Colombia" readOnly />
+                <select
+                  aria-label="País de entrega"
+                  value={country}
+                  onChange={(e) => {
+                    setCountry(e.target.value);
+                    setShippingMethod(
+                      delivery.find((m) => m.country === e.target.value)?.id ||
+                        '',
+                    );
+                    setQuote(null);
+                  }}
+                >
+                  {[...new Set(['CO', ...delivery.map((m) => m.country)])].map(
+                    (c) => (
+                      <option key={c} value={c}>
+                        {c === 'CO' ? 'Colombia' : c}
+                      </option>
+                    ),
+                  )}
+                </select>
               </label>
+            </div>
+            {addresses.length > 0 && (
+              <label className="field">
+                <span>Usar una dirección guardada</span>
+                <select
+                  defaultValue=""
+                  onChange={(e) => {
+                    const a = addresses.find((a) => a.id === e.target.value);
+                    if (!a) return;
+                    const form = e.currentTarget.closest('form');
+                    for (const key of ['name', 'address', 'city', 'postal']) {
+                      const field = form?.elements.namedItem(
+                        key,
+                      ) as HTMLInputElement;
+                      if (field) field.value = a[key];
+                    }
+                    setCountry(a.country);
+                    setShippingMethod(
+                      delivery.find((m) => m.country === a.country)?.id || '',
+                    );
+                    setQuote(null);
+                  }}
+                >
+                  <option value="">Elegir destino guardado</option>
+                  {addresses.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.label} / {a.city}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+            <label className="field">
+              <span>Método de entrega</span>
+              <select
+                aria-label="Método de entrega"
+                value={shippingMethod}
+                onChange={(e) => {
+                  setShippingMethod(e.target.value);
+                  setQuote(null);
+                }}
+              >
+                {delivery
+                  .filter((m) => m.country === country)
+                  .map((m) => (
+                    <option value={m.id} key={m.id}>
+                      {m.name} · {m.estimate}
+                    </option>
+                  ))}
+              </select>
+            </label>
+            <div className="coupon-field">
+              <label className="field">
+                <span>Código promocional</span>
+                <input
+                  value={discountCode}
+                  onChange={(e) => {
+                    setDiscountCode(e.target.value.toUpperCase());
+                    setQuote(null);
+                  }}
+                  maxLength={30}
+                />
+              </label>
+              <button
+                type="button"
+                className="btn btn-outline small"
+                onClick={async () => {
+                  try {
+                    setQuote(
+                      await api('checkout/quote', {
+                        country,
+                        shippingMethod,
+                        discountCode,
+                        items: cart.map((i) => ({
+                          productId: i.productId,
+                          size: i.size,
+                          color: i.color,
+                          quantity: i.quantity,
+                        })),
+                      }),
+                    );
+                    notify('Importes verificados.');
+                  } catch (e) {
+                    notify((e as Error).message, true);
+                  }
+                }}
+              >
+                Aplicar y verificar
+              </button>
             </div>
             <label className="checkbox-label" style={{ marginBottom: 25 }}>
               <input type="checkbox" required />
@@ -383,7 +513,43 @@ export function CheckoutScreen({ settings }: { settings: Settings }) {
               <span>{money(i.price * i.quantity)}</span>
             </div>
           ))}
-          <SummaryTotals subtotal={subtotal} settings={settings} />
+          {quote ? (
+            <div className="summary-totals">
+              <div>
+                <span>Subtotal verificado</span>
+                <span>{money(quote.subtotal)}</span>
+              </div>
+              <div>
+                <span>Envío</span>
+                <span>{money(quote.shipping)}</span>
+              </div>
+              <div>
+                <span>Promoción</span>
+                <span>−{money(quote.discount)}</span>
+              </div>
+              <div>
+                <span>Total</span>
+                <strong>{money(quote.total)}</strong>
+              </div>
+            </div>
+          ) : (
+            <SummaryTotals
+              subtotal={subtotal}
+              settings={{
+                ...settings,
+                shipping: delivery.find((m) => m.id === shippingMethod)
+                  ? {
+                      fee: Number(
+                        delivery.find((m) => m.id === shippingMethod).fee,
+                      ),
+                      freeAt: Number(
+                        delivery.find((m) => m.id === shippingMethod).free_at,
+                      ),
+                    }
+                  : settings.shipping,
+              }}
+            />
+          )}
           <Link href="/carrito" className="text-link" style={{ marginTop: 15 }}>
             Editar mi selección <ArrowUpRight size={13} />
           </Link>
@@ -508,6 +674,34 @@ export function OrderScreen({ id }: { id: string }) {
               <strong>{money(data.total)}</strong>
             </div>
           </div>
+          {data.adjustment?.discount > 0 && (
+            <p>
+              Código {data.adjustment.discount_code}: −
+              {money(data.adjustment.discount)}
+            </p>
+          )}
+          {data.shipment && (
+            <section className="shipment-summary">
+              <h3>Tu próximo destino.</h3>
+              <p>
+                {data.shipment.carrier} / {data.shipment.tracking}
+              </p>
+              <p>Estado: {data.shipment.status}</p>
+              {data.shipment.url && (
+                <a
+                  className="text-link"
+                  href={data.shipment.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Seguir mi envío <ArrowUpRight size={15} />
+                </a>
+              )}
+            </section>
+          )}
+          {['paid', 'processing', 'shipped', 'delivered'].includes(
+            data.status,
+          ) && <ReturnRequest orderId={data.id} />}
         </div>
         <div
           className="two-buttons"

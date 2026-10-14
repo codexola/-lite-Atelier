@@ -192,7 +192,7 @@ test('registration, favorites, private and public design specifications persist'
     page.getByRole('heading', { name: 'Top Lumière' }),
   ).toBeVisible();
   const denied = await page.request.get('/api/admin');
-  expect(denied.status()).toBe(403);
+  expect(denied.status()).toBe(401);
 });
 test('server enforces consent, origin, prices, idempotency, and receipt access', async ({
   request,
@@ -291,7 +291,7 @@ test('moderation, roles, customer messages, CMS, and operational status rules wo
   await post(request, 'auth/logout', {});
   expect(
     (
-      await post(request, 'auth/login', { email: adminEmail, password })
+      await post(request, 'staff/login', { email: adminEmail, password })
     ).status(),
   ).toBe(200);
   const state = await (await request.get('/api/admin')).json();
@@ -605,20 +605,22 @@ test('signed payment webhooks settle once, reject wrong totals, and release inve
 test('administrator UI exposes role-protected inventory, content, messages and metrics', async ({
   page,
 }) => {
-  await page.goto('/cuenta');
-  await page.getByRole('button', { name: 'Solo esenciales' }).click();
-  await page.getByLabel('Correo electrónico', { exact: true }).fill(adminEmail);
-  await page.getByLabel('Contraseña', { exact: true }).fill(password);
-  await page.getByRole('button', { name: 'ENTRAR A MI ATELIER' }).click();
-  await page.getByRole('link', { name: 'Administración' }).click();
+  await page.goto('/admin/login');
+  await page.getByLabel('Correo del equipo', { exact: true }).fill(adminEmail);
+  await page
+    .getByLabel('Contraseña del equipo', { exact: true })
+    .fill(password);
+  await page.getByRole('button', { name: 'ENTRAR AL BUSINESS STUDIO' }).click();
   await expect(
     page.getByRole('heading', { name: 'Detrás de cada historia.' }),
   ).toBeVisible();
   await page.getByRole('button', { name: 'Catálogo', exact: true }).click();
-  await expect(page.locator('.admin-table tbody tr')).toHaveCount(18);
+  await expect(page.locator('.admin-table tbody tr')).toHaveCount(20);
   await page.getByRole('button', { name: 'Editar pieza' }).first().click();
   await expect(page.getByRole('dialog')).toBeVisible();
-  await page.getByText('Inventario por talla y color', { exact: true }).click();
+  await expect(
+    page.getByText('Inventario por talla y color', { exact: true }),
+  ).toBeVisible();
   await expect(page.getByLabel('Stock M Noir', { exact: true })).toBeVisible();
   await page.keyboard.press('Escape');
   const newPiece = page

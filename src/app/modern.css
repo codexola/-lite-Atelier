@@ -1,0 +1,378 @@
+:root {
+  --paper: #fff;
+  --cream: #f1f3f5;
+  --gold: #56647b;
+  --ink: #151a22;
+  --line: #dfe3e9;
+}
+body {
+  background: #fff;
+}
+.header,
+.footer {
+  background: #fff;
+}
+.announcement {
+  background: #11161e;
+  color: #f3f5f8;
+}
+.announcement a {
+  color: #f3f5f8;
+}
+.page-heading {
+  background: #f5f6f8;
+}
+.page-heading h1 em,
+.section-title h2 em {
+  color: #465770;
+}
+.campaign-hero {
+  background: #f2f4f7;
+  color: #111820;
+  min-height: 720px;
+  border-bottom: 1px solid #d9e0e9;
+}
+.campaign-hero .hero-image {
+  object-position: center center;
+}
+.campaign-hero .hero-wash {
+  background: linear-gradient(
+    90deg,
+    #f4f6f9f5 0%,
+    #f4f6f9ed 24%,
+    #f4f6f900 55%
+  );
+}
+.campaign-hero .hero-content {
+  max-width: 490px;
+  margin-left: 6%;
+  padding-top: 105px;
+  color: #111820;
+}
+.campaign-hero .hero-content .eyebrow,
+.campaign-hero .hero-content p {
+  color: #283442;
+}
+.campaign-hero h1 {
+  font-size: clamp(53px, 5.4vw, 85px);
+  line-height: 1.04;
+}
+.campaign-hero h1 span:last-child {
+  color: #2c3849;
+}
+.campaign-hero .btn {
+  background: #131b26;
+  border-color: #131b26;
+  color: #fff;
+  border-radius: 5px;
+}
+.campaign-hero .text-link {
+  color: #202c3c;
+}
+.campaign-hero .hero-bottom {
+  color: #202b3b;
+  border-color: #3442583d;
+}
+.campaign-hero .hero-bottom a {
+  border-color: #61718a80;
+  background: #f8fafcbf;
+}
+.campaign-hero .hero-side {
+  color: #1c2b3e;
+}
+.campaign-seal {
+  color: #192536;
+  background: #ffffffcc;
+  backdrop-filter: blur(12px);
+  padding: 15px 22px;
+  border-radius: 10px;
+  border: 1px solid #d9e2ed;
+}
+.campaign-seal > span {
+  border-color: #6f809a70;
+}
+.brand-values {
+  background: #fff;
+}
+.world-section {
+  background: #f7f8fa;
+}
+.world-section article,
+.world-card,
+.world-studio {
+  border-color: #dce3ed;
+}
+.spatial-stories {
+  background: linear-gradient(125deg, #eef1f5, #fafbfc);
+}
+.spatial-lab {
+  background:
+    radial-gradient(circle at 80% 0, #596d8990, transparent 50%),
+    linear-gradient(145deg, #1a2534, #101822);
+  color: #f6f8fc;
+  border-color: #586a83;
+}
+.spatial-lab p,
+.spatial-lab .eyebrow {
+  color: #d5deea;
+}
+.new-expressions,
+.product-detail,
+.section {
+  background: #fff;
+}
+.product-image {
+  background: #eef1f4;
+  border-radius: 10px;
+}
+.product-caption h3 {
+  font-weight: 500;
+}
+.product-gallery,
+.fit-main,
+.creator-canvas {
+  background: radial-gradient(ellipse at 55% 35%, #fff, #e9edf2);
+  border-color: #d8e0ea;
+}
+.fit-gallery-top,
+.fit-gallery-bottom,
+.card-variant-row {
+  border-color: #d9e1eb;
+}
+.fit-thumbnails button {
+  background: #f4f6f9;
+  border-color: #d8e1ec;
+}
+.fit-thumbnails button.active {
+  border-color: #526582;
+}
+.creator-panel {
+  background: #fff;
+  border-color: #dce3ed;
+}
+.studio-rail button {
+  background: #f2f5f9;
+  border-color: #c2cedd;
+}
+.creator-tabs,
+.studio-progress {
+  border-color: #dce3ed;
+}
+.manifesto-teaser,
+.newsletter,
+.identity-section {
+  background: #f3f5f8;
+}
+.manifesto-copy em,
+.signature-script,
+.atelier-world em {
+  color: #5c6c83;
+}
+.atelier-teaser {
+  background: #151f2d;
+}
+.atelier-copy .eyebrow,
+.atelier-copy p {
+  color: #dae1ec;
+}
+.summary-card,
+.account-nav,
+.account-content,
+.community-controls {
+  background: #fff;
+  border-color: #dce3ed;
+}
+.fitting-page {
+  background: linear-gradient(115deg, #edf1f6, #fafbfc 70%);
+}
+.fitting-heading h1 em {
+  color: #52617a;
+}
+.fitting-heading > p {
+  color: #59677d;
+}
+.fitting-stage-panel {
+  background: #141d2a;
+  border-color: #718299;
+  box-shadow:
+    0 18px 50px #182c4614,
+    inset 0 1px 0 #ffffff35;
+}
+.fitting-camera {
+  background: radial-gradient(ellipse at 50% 35%, #3d506c, #111a28 72%);
+}
+.fitting-wardrobe {
+  background: #fff;
+  border-color: #d5dfeb;
+}
+.fitting-garment-list button {
+  background: radial-gradient(ellipse at top, #f8faff, #e8eef6);
+  border-color: #d4deeb;
+}
+.fitting-garment-list button.selected {
+  border-color: #617898;
+  box-shadow: 0 0 0 2px #d3dfef;
+}
+.fitting-orbit {
+  background: linear-gradient(130deg, #afc5e02a, #afc5e007);
+  border-color: #d0deee47;
+}
+.fitting-start h2 em {
+  color: #d3e0f1;
+}
+.fitting-start p,
+.fitting-start > .eyebrow,
+.fitting-stage-actions > span,
+.fitting-disclaimer {
+  color: #d6dfed;
+}
+.fitting-view-label {
+  background: #142134cc;
+  border-color: #bdd0ec47;
+}
+.fitting-adjust {
+  border-color: #d4deec;
+}
+.btn {
+  border-radius: 4px;
+}
+.collection-card,
+.community-image,
+.journal-image {
+  border-radius: 11px;
+}
+.fashion-story {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  background: #111821;
+  color: #fff;
+  padding: 65px 6%;
+  gap: 50px;
+  align-items: center;
+}
+.fashion-story h2 {
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: clamp(42px, 5vw, 75px);
+  line-height: 1.03;
+  letter-spacing: -0.06em;
+}
+.fashion-story h2 em {
+  font-family: var(--serif);
+  font-weight: 400;
+  color: #d5dfed;
+}
+.fashion-story p {
+  color: #c8d2e2;
+  font-size: 13px;
+  max-width: 350px;
+  margin: 25px 0;
+}
+.fashion-story .eyebrow {
+  color: #c7d7ef;
+  margin-bottom: 26px;
+  display: block;
+}
+.fashion-story > div:last-child {
+  position: relative;
+  height: 510px;
+  border-radius: 13px;
+  overflow: hidden;
+}
+.fashion-story img {
+  object-fit: cover;
+}
+.fashion-story .btn {
+  background: #eef3fa;
+  color: #152338;
+  border-color: #eef3fa;
+}
+@media (max-width: 900px) {
+  .campaign-hero .hero-content {
+    max-width: 410px;
+  }
+  .campaign-hero .hero-wash {
+    background: linear-gradient(
+      90deg,
+      #f4f6f9f5 0%,
+      #f4f6f9de 30%,
+      #f4f6f926 75%
+    );
+  }
+  .fashion-story {
+    gap: 30px;
+  }
+  .fashion-story > div:last-child {
+    height: 420px;
+  }
+}
+@media (max-width: 700px) {
+  .campaign-hero {
+    min-height: 810px;
+    background: #f4f6f9;
+  }
+  .campaign-hero .hero-image {
+    top: 330px !important;
+    height: 480px !important;
+    object-position: 70% center;
+  }
+  .campaign-hero .hero-wash {
+    background: linear-gradient(180deg, #f4f6f9 0%, #f4f6f9 35%, #f4f6f900 55%);
+  }
+  .campaign-hero .hero-content {
+    padding-top: 35px;
+    margin-left: 6%;
+    max-width: 88%;
+  }
+  .campaign-hero h1 {
+    font-size: 49px;
+  }
+  .campaign-hero .hero-content p {
+    font-size: 11px;
+    max-width: 325px;
+    margin-top: 16px;
+  }
+  .campaign-hero .hero-ctas {
+    margin-top: 18px;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .campaign-hero .hero-ctas .text-link {
+    font-size: 9px;
+  }
+  .campaign-hero .hero-bottom {
+    bottom: 14px;
+    left: 6%;
+    right: 6%;
+    font-size: 7px;
+    background: #ffffffc9;
+    padding: 14px;
+    border-radius: 7px;
+  }
+  .campaign-seal {
+    display: none;
+  }
+  .fashion-story {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 40px 6%;
+  }
+  .fashion-story > div:last-child {
+    height: 430px;
+  }
+  .fashion-story h2 {
+    font-size: 43px;
+  }
+  .fashion-story p {
+    font-size: 12px;
+  }
+}
+
+.world-studio,
+.world-community {
+  background: #fff;
+  border-color: #dce3ed;
+}
+.world-canvas {
+  background: linear-gradient(130deg, #e7edf5, #f5f7fa);
+}

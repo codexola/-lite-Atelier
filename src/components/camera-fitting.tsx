@@ -21,6 +21,7 @@ import {
 } from '@/lib/garment-assets';
 import { drawGarment, fitGrid, type Landmark } from '@/lib/camera-fitting';
 import { useAtelier } from './atelier-provider';
+import { RealisticFitting } from './realistic-fitting';
 declare global {
   interface Window {
     Pose?: new (config: { locateFile: (file: string) => string }) => Pose;
@@ -83,6 +84,8 @@ export function CameraFitting({ products }: { products: Product[] }) {
   const [scale, setScale] = useState(1);
   const [manual, setManual] = useState(false);
   const [vertical, setVertical] = useState(0);
+  const [facing, setFacing] = useState<'user' | 'environment'>('user'),
+    [mirrored, setMirrored] = useState(true);
   const [state, setState] = useState<'idle' | 'loading' | 'camera' | 'photo'>(
     'idle',
   );
@@ -90,6 +93,7 @@ export function CameraFitting({ products }: { products: Product[] }) {
   const [error, setError] = useState('');
   const [textureReady, setTextureReady] = useState(false);
   const [photo, setPhoto] = useState<string | null>(null);
+  const [experience, setExperience] = useState(0);
   const video = useRef<HTMLVideoElement>(null),
     canvas = useRef<HTMLCanvasElement>(null),
     photoImage = useRef<HTMLImageElement | null>(null);
@@ -165,6 +169,7 @@ export function CameraFitting({ products }: { products: Product[] }) {
       .catch(() => {});
   }
   function stop() {
+    setExperience((v) => v + 1);
     stopResources();
     photoImage.current = null;
     setPhoto(null);
@@ -252,7 +257,21 @@ export function CameraFitting({ products }: { products: Product[] }) {
           y: previous[i] ? previous[i].y * 0.55 + p.y * 0.45 : p.y,
         }));
         lastPose.current = performance.now();
-        setTracking('Cuerpo detectado');
+        const spec = garmentSpecs[settings.current.product?.slug];
+        const width =
+            video.current?.videoWidth ||
+            photoImage.current?.naturalWidth ||
+            640,
+          height =
+            video.current?.videoHeight ||
+            photoImage.current?.naturalHeight ||
+            960;
+        setTracking(
+          spec &&
+            fitGrid(landmarks.current, width, height, spec.region, spec.sleeves)
+            ? 'Cuerpo detectado'
+            : 'Muestra hombros, cadera y la zona completa de la prenda',
+        );
       } else {
         landmarks.current = [];
         setTracking('Aléjate para mostrar el cuerpo');
@@ -281,7 +300,7 @@ export function CameraFitting({ products }: { products: Product[] }) {
         );
       const media = await navigator.mediaDevices.getUserMedia({
         video: {
-          facingMode: 'user',
+          facingMode: facing,
           width: { ideal: 960 },
           height: { ideal: 1280 },
         },
@@ -445,6 +464,24 @@ export function CameraFitting({ products }: { products: Product[] }) {
     a.download = 'elite-atelier-' + product.slug + '-preview.jpg';
     a.click();
   }
+  function capturePhoto() {
+    const feed =
+      settings.current.state === 'photo' ? photoImage.current : video.current;
+    if (!feed || !['camera', 'photo'].includes(settings.current.state))
+      return null;
+    const width =
+        feed instanceof HTMLVideoElement ? feed.videoWidth : feed.naturalWidth,
+      height =
+        feed instanceof HTMLVideoElement
+          ? feed.videoHeight
+          : feed.naturalHeight;
+    if (!width || !height) return null;
+    const output = document.createElement('canvas');
+    output.width = Math.min(width, 1200);
+    output.height = Math.round((height * output.width) / width);
+    output.getContext('2d')!.drawImage(feed, 0, 0, output.width, output.height);
+    return output.toDataURL('image/jpeg', 0.88);
+  }
   if (!product)
     return (
       <div className="empty-state">
@@ -487,7 +524,8 @@ export function CameraFitting({ products }: { products: Product[] }) {
           >
             <div
               className={
-                'fitting-feed ' + (state === 'photo' ? '' : 'mirrored')
+                'fitting-feed ' +
+                (state === 'photo' || !mirrored ? '' : 'mirrored')
               }
             >
               <video
@@ -538,6 +576,16 @@ export function CameraFitting({ products }: { products: Product[] }) {
               <span className="fitting-texture-status">
                 Cargando la prenda…
               </span>
+            )}
+            {active && !manual && tracking !== 'Cuerpo detectado' && (
+              <div className="fitting-body-guide">
+                <ScanLine size={48} strokeWidth={0.8} />
+                <span>
+                  Muestra hombros, cadera y la zona de la prenda.
+                  <br />
+                  Mantén buena luz y separa ligeramente los brazos.
+                </span>
+              </div>
             )}
             {active && (
               <div className="fitting-view-label">
@@ -688,6 +736,28 @@ export function CameraFitting({ products }: { products: Product[] }) {
           <details className="fitting-adjust">
             <summary>Ajustar la vista previa</summary>
             <label>
+              Cámara preferida
+              <select
+                aria-label="Cámara preferida"
+                value={facing}
+                onChange={(e) =>
+                  setFacing(e.target.value as 'user' | 'environment')
+                }
+              >
+                <option value="user">Frontal</option>
+                <option value="environment">Trasera</option>
+              </select>
+            </label>
+            <small>Apaga y vuelve a activar para cambiar la cámara.</small>
+            <label>
+              <input
+                type="checkbox"
+                checked={mirrored}
+                onChange={(e) => setMirrored(e.target.checked)}
+              />
+              Vista espejo
+            </label>
+            <label>
               <input
                 type="checkbox"
                 checked={manual}
@@ -731,6 +801,12 @@ export function CameraFitting({ products }: { products: Product[] }) {
           </details>
         </section>
       </div>
+      <RealisticFitting
+        key={experience}
+        product={product}
+        color={color}
+        capture={capturePhoto}
+      />
     </div>
   );
 }

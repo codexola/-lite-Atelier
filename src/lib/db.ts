@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { products, sizes } from './catalog';
 import { productColors } from './garment-assets';
+import { initializeOperations, optionsFromRow } from './operations';
 const globals = globalThis as unknown as {
   atelierDb?: Client;
   atelierInit?: Promise<void>;
@@ -119,10 +120,12 @@ CREATE TABLE IF NOT EXISTS audit(id TEXT PRIMARY KEY,user_id TEXT NOT NULL,actio
       sql: "INSERT OR IGNORE INTO posts(id,title,body,image,category,status) VALUES(?,?,?,?,?,'published')",
       args: p,
     });
+  await initializeOperations(c);
 }
 export function productFromRow(r: Record<string, unknown>) {
   return {
     ...r,
+    ...optionsFromRow(r),
     featured: !!r.featured,
     active: !!r.active,
     approved: !!r.approved,
@@ -132,7 +135,7 @@ export async function getProducts() {
   if (!databaseConfigured()) return products;
   const c = await db();
   const r = await c.execute(
-    'SELECT * FROM products WHERE active=1 ORDER BY rowid',
+    'SELECT p.*,o.sku,o.weight,o.sizes,o.colors,o.gallery FROM products p LEFT JOIN product_options o ON o.product_id=p.id WHERE p.active=1 ORDER BY p.rowid',
   );
   return r.rows.map((r) => productFromRow(r));
 }
@@ -148,12 +151,13 @@ export async function getProductVariants(productId: string) {
   if (!databaseConfigured()) return [];
   const c = await db();
   const result = await c.execute({
-    sql: 'SELECT size,color,stock FROM variants WHERE product_id=?',
+    sql: 'SELECT size,color,stock,price FROM variants WHERE product_id=?',
     args: [productId],
   });
   return result.rows.map((row) => ({
     size: String(row.size),
     color: String(row.color),
     stock: Number(row.stock),
+    price: row.price === null ? null : Number(row.price),
   }));
 }

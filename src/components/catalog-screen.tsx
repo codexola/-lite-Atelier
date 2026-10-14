@@ -112,9 +112,11 @@ export function CatalogScreen({ products }: { products: Product[] }) {
               value={collection}
               onChange={(e) => setCollection(e.target.value)}
             >
-              {['Todas', 'Signature', 'Éditions', 'Origine'].map((c) => (
-                <option key={c}>{c}</option>
-              ))}
+              {['Todas', ...new Set(products.map((p) => p.collection))].map(
+                (c) => (
+                  <option key={c}>{c}</option>
+                ),
+              )}
             </select>
           </label>
           <button

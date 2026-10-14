@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowUpRight, ArrowRight, Scissors, Earth, Heart } from 'lucide-react';
-import { getProducts } from '@/lib/db';
+import { getProducts, db, databaseConfigured } from '@/lib/db';
+import { getTaxonomy } from '@/lib/operations';
 import { getContent } from '@/lib/content';
 import { collections } from '@/lib/catalog';
 import { SectionTitle } from '@/components/section-title';
@@ -12,6 +13,21 @@ import { AtelierWorld } from '@/components/atelier-world';
 export const dynamic = 'force-dynamic';
 export default async function Home() {
   const products = await getProducts();
+  const grouping = databaseConfigured()
+    ? await getTaxonomy(await db(), true)
+    : [];
+  const displayedCollections = grouping
+    .filter((g) => g.kind === 'collection')
+    .map((g) => ({
+      name: String(g.name),
+      description: String(g.description),
+      image: String(g.image) || '/images/modern-campaign.webp',
+      label: 'TU PROPIA FORMA DE SER',
+    }));
+  const campaignImage = await getContent(
+    'home_campaign_image',
+    '/images/modern-campaign.webp',
+  );
   const [title, intro] = await Promise.all([
     getContent('home_title', 'Tu identidad.\nTu propia firma.'),
     getContent(
@@ -23,8 +39,8 @@ export default async function Home() {
     <>
       <section className="hero campaign-hero">
         <Image
-          src="/images/campaign.webp"
-          alt="Editorial de moda Élite Atelier, sastrería negra bajo la luz del atelier"
+          src={campaignImage}
+          alt="Collage editorial Élite Atelier, sastrería negra y seda marfil"
           fill
           priority
           fetchPriority="high"
@@ -91,6 +107,31 @@ export default async function Home() {
         </div>
       </section>
       <AtelierWorld />
+      <section className="fashion-story">
+        <div>
+          <span className="eyebrow">SIGNATURE / UN ATELIER EN EVOLUCIÓN</span>
+          <h2>
+            Una actitud.
+            <br />
+            <em>Infinitas formas.</em>
+          </h2>
+          <p>
+            La sastrería, la seda y tu propia mirada. Un diálogo entre la fuerza
+            de las líneas y la libertad de expresarte.
+          </p>
+          <Link className="btn" href="/co-creacion">
+            CREAR MI EXPRESIÓN <ArrowUpRight size={16} />
+          </Link>
+        </div>
+        <div>
+          <Image
+            src="/images/campaign.webp"
+            alt="La campaña original Élite Atelier, sastrería negra y marfil"
+            fill
+            sizes="(max-width:700px) 88vw, 47vw"
+          />
+        </div>
+      </section>
       <SpatialStories />
       <section id="signature" className="section">
         <SectionTitle
@@ -115,11 +156,16 @@ export default async function Home() {
           title="Nuevas formas de expresión."
           description="Punto, abrigos y siluetas para ampliar tu universo."
           href="/colecciones"
-          link="Explorar las 18 propuestas"
+          link={'Explorar las ' + products.length + ' propuestas'}
         />
         <div className="product-grid">
           {products
             .filter((p) => p.image.startsWith('/images/garments/'))
+            .sort(
+              (a, b) =>
+                Number(['p-ligne', 'p-echarpe'].includes(b.id)) -
+                Number(['p-ligne', 'p-echarpe'].includes(a.id)),
+            )
             .slice(0, 4)
             .map((p) => (
               <ProductCard key={p.id} product={p} />
@@ -134,7 +180,10 @@ export default async function Home() {
           link="Explorar colecciones"
         />
         <div className="collection-grid">
-          {collections.map((c, i) => (
+          {(displayedCollections.length
+            ? displayedCollections
+            : collections
+          ).map((c, i) => (
             <Link
               key={c.name}
               className={'collection-card collection-' + i}

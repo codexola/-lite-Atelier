@@ -1,0 +1,327 @@
+.realistic-fitting {
+  margin: 65px 0 0;
+  border-top: 1px solid #cfd9e7;
+  padding-top: 45px;
+}
+.fitting-body-guide {
+  position: absolute;
+  left: 15%;
+  right: 15%;
+  top: 20%;
+  bottom: 18%;
+  border: 1px dashed #d1e3fb70;
+  border-radius: 70px 70px 35px 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 24px;
+  color: #eff5fc;
+  pointer-events: none;
+  text-align: center;
+  background: #0b182728;
+  padding: 15px;
+}
+.fitting-body-guide span {
+  font-size: 10px;
+  line-height: 1.9;
+  background: #112238be;
+  padding: 12px;
+  border-radius: 7px;
+}
+.realistic-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 25px;
+  margin-bottom: 30px;
+}
+.realistic-heading h2 {
+  font-family: var(--sans);
+  font-size: clamp(39px, 4vw, 63px);
+  font-weight: 500;
+  line-height: 1.02;
+  letter-spacing: -0.055em;
+  margin: 20px 0;
+}
+.realistic-heading h2 em {
+  font-family: var(--serif);
+  font-weight: 400;
+  color: #526783;
+}
+.realistic-heading p {
+  font-size: 12px;
+  line-height: 1.9;
+  max-width: 600px;
+  color: #536781;
+}
+.provider-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  font-size: 9px;
+  color: #536880;
+  background: #fff;
+  border: 1px solid #cdd9e9;
+  border-radius: 7px;
+  padding: 13px;
+}
+.provider-status i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #78889e;
+}
+.provider-status.ready i {
+  background: #426f68;
+}
+.realistic-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 27px;
+}
+.realistic-preview {
+  background: linear-gradient(130deg, #e9eef5, #fff);
+  border: 1px solid #cfdaea;
+  border-radius: 17px;
+  overflow: hidden;
+  min-height: 580px;
+  display: flex;
+  flex-direction: column;
+}
+.realistic-empty {
+  min-height: 580px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 40px;
+  text-align: center;
+}
+.realistic-empty > svg {
+  color: #657c9e;
+  margin-bottom: 30px;
+}
+.realistic-empty h3 {
+  font-family: var(--sans);
+  font-size: 38px;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.05em;
+}
+.realistic-empty h3 em {
+  font-family: var(--serif);
+  font-weight: 400;
+  color: #5c7291;
+}
+.realistic-empty p {
+  max-width: 310px;
+  font-size: 11px;
+  color: #62758f;
+  margin-top: 20px;
+  line-height: 1.9;
+}
+.tryon-comparison {
+  position: relative;
+  height: 620px;
+  background: #e6ecf4;
+}
+.tryon-comparison > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.comparison-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #fff;
+  box-shadow: 0 0 15px #101a3440;
+  pointer-events: none;
+}
+.compare-label {
+  position: absolute;
+  bottom: 17px;
+  left: 17px;
+  background: #fffdf6e0;
+  color: #253448;
+  padding: 10px 13px;
+  border-radius: 7px;
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  backdrop-filter: blur(10px);
+}
+.comparison-control {
+  padding: 18px 22px;
+  background: #fff;
+  border-top: 1px solid #d3ddeb;
+}
+.comparison-control span {
+  font-size: 10px;
+  display: block;
+  margin-bottom: 13px;
+}
+.comparison-control input {
+  width: 100%;
+  accent-color: #4c6487;
+}
+.generation-progress {
+  position: absolute;
+  inset: 0;
+  background: #122136b8;
+  backdrop-filter: blur(12px);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
+  text-align: center;
+  padding: 30px;
+}
+.generation-progress > svg {
+  animation: generation-glow 2s ease-in-out infinite;
+}
+.generation-progress span {
+  font-size: 16px;
+}
+.generation-progress small {
+  font-size: 10px;
+  color: #dae5f4;
+}
+@keyframes generation-glow {
+  50% {
+    transform: scale(1.2);
+    opacity: 0.55;
+  }
+}
+.realistic-controls {
+  border: 1px solid #d1dceb;
+  padding: 30px;
+  border-radius: 15px;
+  background: #fff;
+  min-width: 0;
+}
+.realistic-controls h3 {
+  font-family: var(--sans);
+  font-size: 30px;
+  letter-spacing: -0.04em;
+  margin: 20px 0 10px;
+}
+.realistic-controls > p {
+  font-size: 11px;
+  color: #536983;
+  line-height: 1.8;
+  margin-bottom: 23px;
+}
+.realistic-controls > .btn {
+  margin: 14px 0;
+  border-radius: 7px;
+  gap: 10px;
+}
+.provider-consent {
+  align-items: flex-start;
+  margin: 20px 0;
+  font-size: 10px;
+  line-height: 1.9;
+}
+.provider-consent input {
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+.realistic-controls .provider-note {
+  font-size: 9px;
+  color: #5d6e84;
+  line-height: 1.9;
+  margin: 18px 0 0;
+}
+.realistic-controls > .text-link {
+  margin: 19px 0 0;
+}
+.tryon-history {
+  display: flex;
+  gap: 12px;
+  margin-top: 25px;
+  overflow: auto;
+  padding: 5px;
+}
+.tryon-history button {
+  min-width: 135px;
+  background: #fff;
+  border: 1px solid #cfdbe9;
+  border-radius: 9px;
+  padding: 8px;
+}
+.tryon-history img {
+  height: 130px;
+  width: 100%;
+  object-fit: contain;
+}
+.tryon-history span {
+  display: block;
+  font-size: 8px;
+  margin-top: 9px;
+}
+.fitting-adjust select {
+  display: block;
+  width: 100%;
+  background: #fff;
+  border: 1px solid #ccd9ea;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 6px;
+  font-size: 11px;
+}
+@media (max-width: 900px) {
+  .realistic-heading {
+    display: block;
+  }
+  .provider-status {
+    width: fit-content;
+    margin-top: 20px;
+  }
+  .realistic-layout {
+    gap: 18px;
+  }
+  .realistic-controls {
+    padding: 22px;
+  }
+}
+@media (max-width: 700px) {
+  .realistic-fitting {
+    margin-top: 45px;
+    padding-top: 35px;
+  }
+  .realistic-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .realistic-preview,
+  .realistic-empty {
+    min-height: 440px;
+  }
+  .tryon-comparison {
+    height: 480px;
+  }
+  .realistic-empty h3 {
+    font-size: 33px;
+  }
+  .realistic-heading h2 {
+    font-size: 42px;
+  }
+  .realistic-controls {
+    padding: 25px 20px;
+  }
+  .provider-status {
+    white-space: normal;
+    font-size: 8px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .generation-progress > svg {
+    animation: none;
+  }
+}

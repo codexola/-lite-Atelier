@@ -5,13 +5,13 @@ export const checkoutSchema = z.object({
   address: z.string().trim().min(5).max(200),
   city: z.string().trim().min(2).max(100),
   postal: z.string().trim().min(2).max(20),
-  country: z.enum(['CO']),
+  country: z.string().regex(/^[A-Z]{2}$/),
   items: z
     .array(
       z.object({
         productId: z.string().max(80),
-        size: z.enum(['XS', 'S', 'M', 'L', 'XL']),
-        color: z.enum(['Noir', 'Ivory', 'Taupe']),
+        size: z.string().trim().min(1).max(20),
+        color: z.string().trim().min(1).max(40),
         quantity: z.number().int().min(1).max(10),
       }),
     )
@@ -19,6 +19,8 @@ export const checkoutSchema = z.object({
     .max(30),
   idempotencyKey: z.uuid(),
   accepted: z.literal(true),
+  discountCode: z.string().trim().max(30).optional(),
+  shippingMethod: z.string().max(80).optional(),
 });
 export function shippingCost(
   subtotal: number,

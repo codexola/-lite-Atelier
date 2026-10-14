@@ -10,6 +10,14 @@ export const sizeMeasurements: Record<
   XL: { chest: '100–106', waist: '80–86', hip: '106–112' },
 };
 const references: Record<string, { image: string; color: string }> = {
+  'blusa-echarpe': {
+    image: '/images/garments/blusa-echarpe.webp',
+    color: 'Ivory',
+  },
+  'blazer-ligne': {
+    image: '/images/garments/blazer-ligne.webp',
+    color: 'Noir',
+  },
   'blazer-noir': { image: '/images/blazer.webp', color: 'Noir' },
   'top-lumiere': { image: '/images/top.webp', color: 'Ivory' },
   'pantalon-atelier': { image: '/images/trousers.webp', color: 'Noir' },
@@ -62,17 +70,37 @@ const references: Record<string, { image: string; color: string }> = {
     color: 'Ivory',
   },
 };
-export function productMedia(p: Pick<Product, 'slug' | 'image'>) {
+export function productMedia(
+  p: Pick<Product, 'slug' | 'image' | 'gallery' | 'colorOptions'>,
+) {
+  if (p.gallery?.length)
+    return {
+      image: p.image,
+      color: p.colorOptions?.[0]?.name || p.gallery[0].color || 'Noir',
+      custom: true,
+    };
   const reference = references[p.slug];
   return reference?.image === p.image ? reference : null;
 }
 export function wornImage(
-  p: Pick<Product, 'slug' | 'image'>,
+  p: Pick<Product, 'slug' | 'image' | 'gallery'>,
   color: string,
   angle: string = 'front',
 ) {
+  if (p.gallery?.length) {
+    const view =
+      p.gallery.find(
+        (g) => g.angle === angle && (!g.color || g.color === color),
+      ) || p.gallery.find((g) => !g.color || g.color === color);
+    return view?.src || p.image;
+  }
   return productMedia(p)
     ? `/images/products/${p.slug}/${color.toLowerCase()}-${angle}.webp`
     : p.image;
 }
-export type ProductVariant = { size: string; color: string; stock: number };
+export type ProductVariant = {
+  size: string;
+  color: string;
+  stock: number;
+  price?: number | null;
+};

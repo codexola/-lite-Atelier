@@ -7,25 +7,25 @@
 - Operator: orders, reconciliation, subscriber export, and customer messages. No CMS or role assignment.
 - Admin: all functions, including roles, metrics and activity.
 
-API authorization enforces these permissions independently of the UI. The initial administrator is created by the secure bootstrap command; customer registration never grants administrative access. Administrators cannot demote themselves from the panel.
+API authorization enforces these permissions independently of the UI. The initial administrator is created once from secure Production environment bindings; use `/admin/login` for the separate staff session. customer registration never grants administrative access. Administrators cannot demote themselves from the panel.
 
 ## Catalog
 
 Open `/admin` → Catálogo. Create or edit a product, collection, description, composition, fit, price in COP and a library image. Visibility and homepage featuring are independent. Approval for sale is separate from visibility. Prices are stored as integer centavos; checkout reads them from the server.
 
-The initial stock field initializes/replaces every size/color variant. Use the per-variant inventory table for precise quantities. Inventory cannot be overwritten while that product/variant has pending payment reservations. Upload approved photography into `public/images/` through the repository and use a `.webp` library path; arbitrary external image URLs and insecure uploads are not accepted.
+Use the variant inventory table for precise quantities and optional individual prices. Pending payment reservations prevent replacing a product's variants. Upload JPG/PNG/WebP directly in Business Studio; the server optimizes and persists the catalog photos in libSQL. Create new categories, collections, colors, sizes and labeled angle galleries without code changes. External arbitrary URLs are not accepted.
 
-The conceptual wardrobe contains 18 products across seven categories. The original six offer three illustrated colors; the 12 additions offer one photographed color initially. Bulk stock edits preserve that color set. The image library includes the new garment assets and preserves the current image when editing custom products. To add accurate color/angle or camera assets, supply matching reference photographs and update the explicit media/garment mappings; reusing an unrelated preview garment is deliberately prevented.
+The conceptual wardrobe contains 20 products across seven initial categories, 160 variants, 96 worn views and 32 transparent camera assets. Original photos remain. The original six products offer three illustrated colors; the 14 additions offer their photographed reference color. Custom product images retain their own reference. Matching transparent camera mappings are necessary for an accurate local overlay; hosted FASHN uses the product's saved photograph. See [Business Studio](BUSINESS-STUDIO.md).
 
 ## Camera preview
 
-`/probador-virtual` is a private experimental 2D preview. No customer photos or live frames are uploaded or saved to the database. The local body-tracking models require no provider key and are prepared automatically by `npm ci`. Users can stop/borrar the camera/photo or download a labeled local snapshot. A chosen size is a cart variant, not a camera measurement. Customer-facing support must not describe the overlay as exact fit or photorealistic clothing; that future capability requires a specialized provider and quality/consent review.
+`/probador-virtual` includes a private local experimental 2D preview. Local frames/photos remain on the device; the separate FASHN generation requires explicit consent and authenticated submission. Neither private input nor generated output is saved in the application database. The local body-tracking models require no provider key and are prepared automatically by `npm ci`. Users can stop/borrar the camera/photo or download a labeled local snapshot. A chosen size is a cart variant, not a camera measurement. Customer-facing support must not describe the overlay as exact fit or photorealistic clothing; the FASHN quality workflow is a separate provider feature requiring an active key, credits and quality/consent review.
 
 ## Orders
 
-Preview orders are retained separately from real sales. Operators can cancel a preview order. A real order becomes paid only through verified payment evidence. Valid fulfillment progression is paid → processing → shipped → delivered. Updating a paid order's status does not send tracking emails or procure shipping labels; the logistics operator supplies those services.
+Preview orders are retained separately from real sales. Operators can cancel a preview order. A real order becomes paid only through verified payment evidence. Valid fulfillment progression is paid → processing → shipped → delivered. The shipping module records actual carrier references and offers tracking links to the customer. It attempts an update email when Resend is configured; delivery remains an external provider check. Operators obtain carrier labels from their portal.
 
-Use Conciliar pago for a pending order with a recorded provider identifier. It checks the provider, rather than assuming payment from a customer's report. Pending Wompi orders without an identifier require a merchant-portal lookup by reference. Refunds are handled in the merchant portal, with manual reconciliation; the panel deliberately does not pretend that changing a status refunds money.
+Use Conciliar pago for a pending order with a recorded provider identifier. It checks the provider, rather than assuming payment from a customer's report. Pending Wompi orders without an identifier require a merchant-portal lookup by reference. Return requests support approval, receipt, one-time restocking and refund requests. Configured Stripe refunds use its API with idempotency and reference reconciliation. Other gateways require portal processing and an explicit operator-attested reconciliation reference; changing a status alone never proves that money was returned.
 
 ## Community and proposals
 

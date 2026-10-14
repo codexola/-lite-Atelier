@@ -5,6 +5,8 @@ export const garmentSpecs: Record<
   string,
   { color: string; region: GarmentRegion; sleeves: boolean }
 > = {
+  'blazer-ligne': { color: 'Noir', region: 'upper', sleeves: true },
+  'blusa-echarpe': { color: 'Ivory', region: 'upper', sleeves: true },
   'blazer-noir': { color: 'Noir', region: 'upper', sleeves: true },
   'top-lumiere': { color: 'Ivory', region: 'upper', sleeves: false },
   'pantalon-atelier': { color: 'Noir', region: 'lower', sleeves: false },
@@ -29,6 +31,8 @@ export function garmentAsset(
   color: string,
 ) {
   const spec = garmentSpecs[p.slug];
+  const media = productMedia(p);
+  if (media && 'custom' in media) return null;
   if (
     !spec ||
     !productColors(p).includes(color) ||
@@ -37,9 +41,23 @@ export function garmentAsset(
     return null;
   return `/images/try-on/${p.slug}/${color.toLowerCase()}.webp`;
 }
-export function productColors(p: Pick<Product, 'slug' | 'image'>) {
+export function productColors(
+  p: Pick<Product, 'slug' | 'image' | 'colorOptions'>,
+) {
+  if (p.colorOptions?.length) return p.colorOptions.map((c) => c.name);
   const spec = garmentSpecs[p.slug];
   return spec && p.image === `/images/garments/${p.slug}.webp`
     ? [spec.color]
     : ['Noir', 'Ivory', 'Taupe'];
+}
+export function colorChoices(
+  p: Pick<Product, 'slug' | 'image' | 'colorOptions'>,
+) {
+  return p.colorOptions?.length
+    ? p.colorOptions
+    : [
+        { name: 'Noir', hex: '#20201f' },
+        { name: 'Ivory', hex: '#e8e1d6' },
+        { name: 'Taupe', hex: '#8e7a68' },
+      ].filter((c) => productColors(p).includes(c.name));
 }

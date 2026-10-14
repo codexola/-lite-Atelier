@@ -21,3 +21,7 @@ Suggested vertical video: 0–4 seconds, people and architectural silhouettes; 4
 Compare identity-quiz vs collection CTAs and editorial imagery vs manifesto copy. Evaluate consented events `page_view`, `product_view`, `add_to_cart`, `checkout_start`, `quiz_complete`, and `lead_signup`, alongside separately verified paid orders. Do not count preview orders as revenue or treat a small sample as a reliable commercial conclusion.
 
 After 2–4 weeks of actual traffic, review consented signups, quiz completion, product discovery, checkout abandonment, real sales, fulfillment issues and customer inquiries. Prioritize findings before adding markets, costs or advertising. No real campaign performance has been measured during implementation.
+
+## Campaign workspace
+
+Business Studio now supports draft campaigns, explicitly confirmed resumable sends to opted-in contacts and whole-dataset reports. No campaign was sent during implementation. Production sending needs Resend, a verified sender and APP_URL. Failed or uncertain deliveries require reconciliation before any resend. See [Business Studio](BUSINESS-STUDIO.md).

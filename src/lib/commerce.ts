@@ -6,6 +6,7 @@ import { checkoutSchema, shippingCost } from './domain';
 import { HttpError, type User } from './auth';
 import { sendMail } from './mail';
 import { publicSettings } from './settings';
+import { optionsFromRow } from './operations';
 import type { z } from 'zod';
 export type CheckoutInput = z.infer<typeof checkoutSchema>;
 export function liveCommerce() {
@@ -58,7 +59,7 @@ export async function checkout(input: CheckoutInput, user: User | null) {
           );
         seen.add(key);
         const result = await tx.execute({
-          sql: 'SELECT p.*,v.stock AS variant_stock FROM products p JOIN variants v ON v.product_id=p.id WHERE p.id=? AND v.size=? AND v.color=? AND p.active=1',
+          sql: 'SELECT p.*,o.gallery,v.stock AS variant_stock,COALESCE(v.price,p.price) AS selected_price FROM products p JOIN variants v ON v.product_id=p.id LEFT JOIN product_options o ON o.product_id=p.id WHERE p.id=? AND v.size=? AND v.color=? AND p.active=1',
           args: [item.productId, item.size, item.color],
         });
         const p = result.rows[0];
@@ -73,13 +74,17 @@ export async function checkout(input: CheckoutInput, user: User | null) {
             409,
             `No hay suficientes unidades de ${p.name} en esta variante.`,
           );
-        subtotal += Number(p.price) * item.quantity;
+        subtotal += Number(p.selected_price) * item.quantity;
         items.push({
           ...item,
           name: p.name,
-          price: Number(p.price),
+          price: Number(p.selected_price),
           image: wornImage(
-            { slug: String(p.slug), image: String(p.image) },
+            {
+              slug: String(p.slug),
+              image: String(p.image),
+              ...optionsFromRow(p),
+            },
             item.color,
           ),
         });
@@ -95,8 +100,62 @@ export async function checkout(input: CheckoutInput, user: User | null) {
             ],
           });
       }
-      const shipping = shippingCost(subtotal, publicSettings().shipping);
-      total = subtotal + shipping;
+      let shipping = shippingCost(subtotal, publicSettings().shipping);
+      if (input.shippingMethod || input.country !== 'CO') {
+        const method = (
+          await tx.execute({
+            sql:
+              'SELECT * FROM shipping_methods WHERE active=1 AND country=?' +
+              (input.shippingMethod ? ' AND id=?' : '') +
+              ' ORDER BY fee LIMIT 1',
+            args: input.shippingMethod
+              ? [input.country, input.shippingMethod]
+              : [input.country],
+          })
+        ).rows[0];
+        if (!method)
+          throw new HttpError(
+            400,
+            'No hay un método de envío configurado para este destino.',
+          );
+        shipping = shippingCost(subtotal, {
+          fee: Number(method.fee),
+          freeAt: Number(method.free_at),
+        });
+      }
+      let discount = 0;
+      const code = input.discountCode?.trim().toUpperCase();
+      if (code) {
+        const promotion = (
+          await tx.execute({
+            sql: 'SELECT * FROM discounts WHERE code=?',
+            args: [code],
+          })
+        ).rows[0];
+        if (
+          !promotion ||
+          !promotion.active ||
+          Date.parse(String(promotion.expires_at)) <= Date.now() ||
+          Number(promotion.uses) >= Number(promotion.maximum_uses) ||
+          subtotal < Number(promotion.minimum)
+        )
+          throw new HttpError(
+            409,
+            'El código no es válido, venció o no cumple el mínimo.',
+          );
+        discount = Math.min(
+          subtotal,
+          promotion.type === 'percent'
+            ? Math.floor((subtotal * Number(promotion.value)) / 100)
+            : Number(promotion.value),
+        );
+        if (liveCommerce())
+          await tx.execute({
+            sql: 'UPDATE discounts SET uses=uses+1 WHERE code=?',
+            args: [code],
+          });
+      }
+      total = subtotal + shipping - discount;
       orderId = crypto.randomUUID();
       token = randomBytes(24).toString('hex');
       await tx.execute({
@@ -119,6 +178,10 @@ export async function checkout(input: CheckoutInput, user: User | null) {
           fingerprint,
           token,
         ],
+      });
+      await tx.execute({
+        sql: 'INSERT INTO order_adjustments(order_id,discount_code,discount,shipping_method) VALUES(?,?,?,?)',
+        args: [orderId, code || null, discount, input.shippingMethod || null],
       });
       await tx.commit();
     }
@@ -245,6 +308,17 @@ export async function releaseOrder(id: string, status = 'expired') {
         sql: 'UPDATE orders SET status=? WHERE id=? AND status=?',
         args: [status, id, 'pending'],
       });
+      const adjustment = (
+        await tx.execute({
+          sql: 'SELECT discount_code FROM order_adjustments WHERE order_id=?',
+          args: [id],
+        })
+      ).rows[0];
+      if (adjustment?.discount_code)
+        await tx.execute({
+          sql: 'UPDATE discounts SET uses=MAX(0,uses-1) WHERE code=?',
+          args: [String(adjustment.discount_code)],
+        });
     }
     await tx.commit();
   } catch (e) {

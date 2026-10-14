@@ -7,6 +7,7 @@ import { db, audit, databaseConfigured, productFromRow } from '@/lib/db';
 import {
   currentUser,
   requireUser,
+  requireStaff,
   session,
   hashPassword,
   verifyPassword,
@@ -16,6 +17,12 @@ import {
 import { checkoutSchema, styleResult, orderTransition } from '@/lib/domain';
 import { productCategories } from '@/lib/catalog';
 import { productColors } from '@/lib/garment-assets';
+import { tryOnGet, startTryOn, deleteTryOn } from '@/lib/try-on';
+import {
+  operationsGet,
+  operationsPost,
+  uploadMedia,
+} from '@/lib/operations-api';
 import {
   checkout,
   paidOrder,
@@ -28,6 +35,7 @@ import {
   authoritativeWompiTransaction,
 } from '@/lib/wompi';
 export const runtime = 'nodejs';
+export const maxDuration = 60;
 const text = (min = 1, max = 500) => z.string().trim().min(min).max(max);
 function json(value: unknown, status = 200) {
   return NextResponse.json(value, {
@@ -72,6 +80,10 @@ export async function GET(
 ) {
   try {
     const key = (await params).path.join('/');
+    const fitting = await tryOnGet(key, req);
+    if (fitting) return fitting;
+    const operation = await operationsGet(key, req);
+    if (operation) return operation;
     if (key === 'health') {
       if (!databaseConfigured())
         return json(
@@ -131,7 +143,7 @@ export async function GET(
           args: [user.id],
         }),
         c.execute({
-          sql: 'SELECT * FROM designs WHERE user_id=? ORDER BY created_at DESC',
+          sql: 'SELECT d.*,r.status review_status,r.note review_note FROM designs d LEFT JOIN design_reviews r ON r.design_id=d.id WHERE d.user_id=? ORDER BY d.created_at DESC',
           args: [user.id],
         }),
       ]);
@@ -191,11 +203,31 @@ export async function GET(
           shipping: order.shipping,
           total: order.total,
           created_at: order.created_at,
+          shipment:
+            (
+              await c.execute({
+                sql: 'SELECT carrier,tracking,url,status FROM shipments WHERE order_id=?',
+                args: [id],
+              })
+            ).rows[0] || null,
+          adjustment:
+            (
+              await c.execute({
+                sql: 'SELECT discount_code,discount FROM order_adjustments WHERE order_id=?',
+                args: [id],
+              })
+            ).rows[0] || null,
+          reviews: (
+            await c.execute({
+              sql: 'SELECT status,reason,created_at FROM returns WHERE order_id=?',
+              args: [id],
+            })
+          ).rows,
         },
       });
     }
     if (key === 'admin/variants') {
-      await requireUser(['admin', 'editor']);
+      await requireStaff(['admin', 'editor']);
       const c = await db();
       const id = req.nextUrl.searchParams.get('id');
       if (!id) throw new HttpError(400, 'Pieza requerida.');
@@ -209,7 +241,7 @@ export async function GET(
       });
     }
     if (key === 'admin') {
-      const user = await requireUser(['admin', 'editor', 'operator']);
+      const user = await requireStaff(['admin', 'editor', 'operator']);
       const c = await db();
       const result: Record<string, unknown> = { user };
       if (['admin', 'operator'].includes(user.role)) {
@@ -231,7 +263,9 @@ export async function GET(
       }
       if (['admin', 'editor'].includes(user.role)) {
         result.products = (
-          await c.execute('SELECT * FROM products ORDER BY rowid')
+          await c.execute(
+            'SELECT p.*,o.sku,o.weight,o.sizes,o.colors,o.gallery FROM products p LEFT JOIN product_options o ON o.product_id=p.id ORDER BY p.rowid',
+          )
         ).rows.map(productFromRow);
         result.posts = (
           await c.execute(
@@ -240,7 +274,7 @@ export async function GET(
         ).rows;
         result.designs = (
           await c.execute(
-            'SELECT * FROM designs ORDER BY created_at DESC LIMIT 200',
+            "SELECT * FROM designs WHERE status<>'private' ORDER BY created_at DESC LIMIT 200",
           )
         ).rows;
         result.comments = (
@@ -282,6 +316,8 @@ export async function POST(
     const key = (await params).path.join('/');
     if (key.startsWith('webhooks/')) return webhook(req, key);
     validateOrigin(req);
+    if (key === 'try-on/start') return await startTryOn(req);
+    if (key === 'admin/media') return await uploadMedia(req);
     if (Number(req.headers.get('content-length') || 0) > 50000)
       throw new HttpError(413, 'Solicitud demasiado grande.');
     const raw = await req.text();
@@ -296,6 +332,9 @@ export async function POST(
     const c = await db();
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'local';
     await rateLimit(key, ip, key.startsWith('auth') ? 25 : 150);
+    if (key === 'try-on/delete') return await deleteTryOn(body);
+    const operation = await operationsPost(key, body);
+    if (operation) return operation;
     if (key === 'auth/register') {
       const input = z
         .object({
@@ -686,7 +725,7 @@ export async function POST(
       return json({ ok: true });
     }
     if (key === 'admin/variant') {
-      const user = await requireUser(['admin', 'editor']);
+      const user = await requireStaff(['admin', 'editor']);
       const input = z
         .object({
           productId: text(1, 80),
@@ -727,7 +766,7 @@ export async function POST(
       return json({ ok: true });
     }
     if (key === 'admin/reconcile') {
-      const user = await requireUser(['admin', 'operator']);
+      const user = await requireStaff(['admin', 'operator']);
       const input = z.object({ id: text(1, 80) }).parse(body);
       const r = await c.execute({
         sql: 'SELECT * FROM orders WHERE id=?',
@@ -780,7 +819,7 @@ export async function POST(
       return json({ ok: true });
     }
     if (key === 'admin/product') {
-      const user = await requireUser(['admin', 'editor']);
+      const user = await requireStaff(['admin', 'editor']);
       const input = z
         .object({
           id: text(1, 80),
@@ -857,7 +896,7 @@ export async function POST(
       return json({ ok: true });
     }
     if (key === 'admin/contact') {
-      const user = await requireUser(['admin', 'operator']);
+      const user = await requireStaff(['admin', 'operator']);
       const input = z
         .object({ id: text(1, 80), status: z.enum(['new', 'resolved']) })
         .parse(body);
@@ -869,7 +908,7 @@ export async function POST(
       return json({ ok: true });
     }
     if (key === 'admin/order') {
-      const user = await requireUser(['admin', 'operator']);
+      const user = await requireStaff(['admin', 'operator']);
       const input = z
         .object({
           id: text(1, 80),
@@ -913,7 +952,7 @@ export async function POST(
       return json({ ok: true });
     }
     if (key === 'admin/moderate') {
-      const user = await requireUser(['admin', 'editor']);
+      const user = await requireStaff(['admin', 'editor']);
       const input = z
         .object({
           id: text(1, 80),
@@ -929,10 +968,11 @@ export async function POST(
       return json({ ok: true });
     }
     if (key === 'admin/content') {
-      const user = await requireUser(['admin', 'editor']);
+      const user = await requireStaff(['admin', 'editor']);
       const input = z
         .object({
           key: z.enum([
+            'home_campaign_image',
             'home_title',
             'home_intro',
             'manifesto',
@@ -945,6 +985,13 @@ export async function POST(
           value: text(3, 10000),
         })
         .parse(body);
+      if (
+        input.key === 'home_campaign_image' &&
+        !/^\/(?:images\/(?:[a-z0-9-]+\/)*[a-z0-9-]+\.webp|api\/media\/[a-f0-9-]{36})$/.test(
+          input.value,
+        )
+      )
+        throw new HttpError(400, 'Selecciona una imagen de la biblioteca.');
       await c.execute({
         sql: 'INSERT INTO content(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',
         args: [input.key, input.value],
@@ -953,7 +1000,7 @@ export async function POST(
       return json({ ok: true });
     }
     if (key === 'admin/role') {
-      const user = await requireUser(['admin']);
+      const user = await requireStaff(['admin']);
       const input = z
         .object({
           id: text(1, 80),

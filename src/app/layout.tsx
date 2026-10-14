@@ -3,14 +3,16 @@ import type { Metadata } from 'next';
 import { AtelierProvider } from '@/components/atelier-provider';
 import { Analytics } from '@/components/analytics';
 import { EditorialMotion } from '@/components/motion';
-import { Header } from '@/components/header';
-import { Footer } from '@/components/footer';
+import { SiteHeader, SiteFooter } from '@/components/site-chrome';
 import '@fontsource/cormorant-garamond/latin-400.css';
 import '@fontsource/cormorant-garamond/latin-500.css';
 import '@fontsource/cormorant-garamond/latin-400-italic.css';
 import '@fontsource/dm-sans/latin-400.css';
 import '@fontsource/dm-sans/latin-500.css';
 import './globals.css';
+import './workspace.css';
+import './modern.css';
+import './tryon.css';
 const base =
   process.env.APP_URL ||
   (process.env.VERCEL_PROJECT_PRODUCTION_URL
@@ -48,9 +50,9 @@ export default function RootLayout({
           <a href="#main" className="skip-link">
             Saltar al contenido
           </a>
-          <Header />
+          <SiteHeader />
           <main id="main">{children}</main>
-          <Footer mode={publicSettings().mode} />
+          <SiteFooter mode={publicSettings().mode} />
         </AtelierProvider>
       </body>
     </html>

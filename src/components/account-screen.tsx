@@ -1,4 +1,5 @@
 'use client';
+import { AddressBook } from './customer-tools';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -397,6 +398,12 @@ export function AccountScreen({ products }: { products: Product[] }) {
                           ? 'En revisión'
                           : statusLabels[d.status]}
                       </span>
+                      {d.review_status && (
+                        <p className="design-review-note">
+                          Revisión de viabilidad: {d.review_status}
+                          {d.review_note && <span> · {d.review_note}</span>}
+                        </p>
+                      )}
                     </div>
                   </article>
                 ))
@@ -486,6 +493,7 @@ export function AccountScreen({ products }: { products: Product[] }) {
                   </button>
                 </form>
               </div>
+              <AddressBook />
               <p className="form-note">
                 Para solicitar eliminación o exportación de tus datos, utiliza
                 el canal de privacidad indicado en las políticas.

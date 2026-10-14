@@ -2,7 +2,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Heart, ArrowUpRight } from 'lucide-react';
-import { productColors } from '@/lib/garment-assets';
+import { productColors, colorChoices } from '@/lib/garment-assets';
 import { productMedia, wornImage } from '@/lib/product-media';
 import { type Product, money, colors } from '@/lib/catalog';
 import { api, useAtelier } from './atelier-provider';
@@ -92,19 +92,17 @@ export function ProductCard({
             role="group"
             aria-label={'Colores de ' + p.name}
           >
-            {colors
-              .filter((c) => productColors(p).includes(c.name))
-              .map((c) => (
-                <button
-                  key={c.name}
-                  title={c.name}
-                  aria-label={'Ver ' + p.name + ' en ' + c.name}
-                  aria-pressed={color === c.name}
-                  className={color === c.name ? 'selected' : ''}
-                  style={{ background: c.hex }}
-                  onClick={() => setColor(c.name)}
-                />
-              ))}
+            {colorChoices(p).map((c) => (
+              <button
+                key={c.name}
+                title={c.name}
+                aria-label={'Ver ' + p.name + ' en ' + c.name}
+                aria-pressed={color === c.name}
+                className={color === c.name ? 'selected' : ''}
+                style={{ background: c.hex }}
+                onClick={() => setColor(c.name)}
+              />
+            ))}
           </div>
           <span>{color} / XS—XL</span>
         </div>

@@ -2,7 +2,11 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowUpRight, Heart, Truck, ChevronRight } from 'lucide-react';
-import { garmentAsset, productColors } from '@/lib/garment-assets';
+import {
+  garmentAsset,
+  productColors,
+  colorChoices,
+} from '@/lib/garment-assets';
 import { ProductGallery } from './product-gallery';
 import {
   productMedia,
@@ -24,6 +28,10 @@ export function ProductScreen({
     productMedia(p)?.color || productColors(p)[0],
   );
   const [saved, setSaved] = useState(false);
+  const sizeChoices = p.sizeOptions?.length ? p.sizeOptions : [...sizes];
+  const chosenPrice =
+    variants.find((v) => v.color === color && v.size === size)?.price ??
+    p.price;
   useEffect(() => {
     track('product_view');
     const initial = new URLSearchParams(window.location.search).get('color');
@@ -31,7 +39,7 @@ export function ProductScreen({
     const initialSize = new URLSearchParams(window.location.search).get(
       'talla',
     );
-    if (initialSize && sizes.some((s) => s === initialSize))
+    if (initialSize && sizeChoices.some((s) => s === initialSize))
       setSize(initialSize);
   }, []);
   return (
@@ -48,7 +56,7 @@ export function ProductScreen({
         <span className="eyebrow">{p.collection.toUpperCase()} · PIEZA 01</span>
         <h1>{p.name}</h1>
         <div className="detail-price">
-          {money(p.price)}
+          {money(chosenPrice)}
           <small>COP {p.approved ? '' : '· precio conceptual'}</small>
         </div>
         <p className="product-description">{p.description}</p>
@@ -64,30 +72,25 @@ export function ProductScreen({
           </span>
         </div>
         <div className="color-options">
-          {colors
-            .filter((c) => productColors(p).includes(c.name))
-            .map((c) => (
-              <button
-                key={c.name}
-                className={
-                  'color-option ' + (c.name === color ? 'selected' : '')
-                }
-                style={{ background: c.hex }}
-                aria-label={'Color ' + c.name}
-                aria-pressed={c.name === color}
-                onClick={() => {
-                  setColor(c.name);
-                  if (
-                    variants.length > 0 &&
-                    !variants.some(
-                      (v) =>
-                        v.color === c.name && v.size === size && v.stock > 0,
-                    )
+          {colorChoices(p).map((c) => (
+            <button
+              key={c.name}
+              className={'color-option ' + (c.name === color ? 'selected' : '')}
+              style={{ background: c.hex }}
+              aria-label={'Color ' + c.name}
+              aria-pressed={c.name === color}
+              onClick={() => {
+                setColor(c.name);
+                if (
+                  variants.length > 0 &&
+                  !variants.some(
+                    (v) => v.color === c.name && v.size === size && v.stock > 0,
                   )
-                    setSize('');
-                }}
-              />
-            ))}
+                )
+                  setSize('');
+              }}
+            />
+          ))}
         </div>
         <div className="option-heading">
           <span>
@@ -96,7 +99,7 @@ export function ProductScreen({
           <Link href="/guia-tallas">Guía de tallas</Link>
         </div>
         <div className="size-options">
-          {sizes.map((s) => (
+          {sizeChoices.map((s) => (
             <button
               key={s}
               className={size === s ? 'selected' : ''}
@@ -113,7 +116,7 @@ export function ProductScreen({
             </button>
           ))}
         </div>
-        {size && (
+        {size && sizeMeasurements[size] && (
           <div className="fit-measurements" aria-live="polite">
             <span>
               Tu selección{' '}
@@ -160,7 +163,7 @@ export function ProductScreen({
                 );
                 return;
               }
-              add(p, size, color);
+              add({ ...p, price: chosenPrice }, size, color);
             }}
           >
             AÑADIR A MI SELECCIÓN <ArrowUpRight size={16} />

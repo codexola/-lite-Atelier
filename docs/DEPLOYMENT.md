@@ -25,7 +25,7 @@ The camera preview requires no new credentials. `npm ci` runs the postinstall sc
 
 The database schema and preview seed are initialized automatically on first use. Subsequent invocations preserve existing products and records. Product seeding is insert-only; CMS edits are not overwritten.
 
-Create the first administrator from an authorized environment connected to the production database. Use the secure `ADMIN_EMAIL` and `ADMIN_PASSWORD` bindings and `npm run admin:create`; remove the bootstrap password binding afterwards. Do not create a public default account.
+The secure Vercel Production `ADMIN_EMAIL` and `ADMIN_PASSWORD` bindings bootstrap the owner once during database initialization after deployment. Use `/admin/login` for the separate staff session, then change the initial password in Security and remove the bootstrap password binding. Subsequent initialization preserves that change. `npm run admin:create` remains available from an authorized environment connected to the same database. Do not create a public default account. See [Business Studio](BUSINESS-STUDIO.md).
 
 ## Colombia payments
 
@@ -63,7 +63,7 @@ Before setting `COMMERCE_MODE=live` and `LAUNCH_APPROVED=true`:
 - Enter real stock for each variant. Review production feasibility and co-creation rules.
 - Fill in legal operator, NIT, customer-service channels, pricing/tax treatment, delivery coverage, guarantees, retracto/reversión and return terms for Colombia.
 - Replace policy drafts in CMS; validate security, privacy, legal and operational obligations with responsible professionals.
-- Configure `SHIPPING_FEE_COP` and `FREE_SHIPPING_COP` to approved amounts. The reference defaults are 25,000 and 1,200,000 COP respectively. Live prices must already incorporate the approved tax treatment; the app does not calculate regional taxes.
+- Configure approved shipping methods, destination countries and rates in Business Studio. `SHIPPING_FEE_COP` and `FREE_SHIPPING_COP` remain fallback storefront estimates; checkout uses saved delivery methods. The reference defaults are 25,000 and 1,200,000 COP respectively. Live prices must already incorporate the approved tax treatment; the app does not calculate regional taxes.
 - Mark only actually saleable products as approved in admin.
 - Complete sandbox payments: approved, declined, abandoned, duplicate callbacks, stock conflicts and refund/late-payment reconciliation. The automated callback tests use fixtures; they do not prove real merchant connectivity.
 - Verify emails, production persistence, backup/restore, monitoring and the mobile purchase flow on the actual deployment.
@@ -73,3 +73,7 @@ Before setting `COMMERCE_MODE=live` and `LAUNCH_APPROVED=true`:
 Use a prior Vercel deployment for application rollback. Database rollback is a separate operation: record the database schema version and restore a verified provider snapshot if necessary. Configure provider backup retention, alerts for webhook/API failures and a support owner. Monitor HTTP 5xx rates and failed webhook deliveries. Rotate compromised keys and invalidate existing sessions when needed by rotating `AUTH_SECRET`.
 
 The project snapshot contains installed files, not live server processes. Restart services for a new cloud task using the saved startup instructions. Do not create Git worktrees unless explicitly requested.
+
+## Hosted realistic fitting
+
+Set the server-only `FASHN_API_KEY` in Vercel Production and redeploy. `/api/try-on/config` reports key presence without exposing values. A valid provider account and credits are required. Read [Business Studio and realistic fitting](BUSINESS-STUDIO.md) for privacy, consent, test boundaries and the private local camera alternative.

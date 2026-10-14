@@ -28,6 +28,11 @@ export type Product = {
   active: boolean;
   approved: boolean;
   stock: number;
+  sku?: string;
+  weight?: number;
+  sizeOptions?: string[];
+  colorOptions?: { name: string; hex: string }[];
+  gallery?: { src: string; label: string; color?: string; angle: string }[];
 };
 export const products: Product[] = [
   {
@@ -332,6 +337,40 @@ export const products: Product[] = [
     material: 'Concepto: satén de viscosa.',
     fit: 'Tiro alto. Cintura elástica. Pierna palazzo.',
     featured: false,
+    active: true,
+    approved: false,
+    stock: 20,
+  },
+  {
+    id: 'p-ligne',
+    slug: 'blazer-ligne',
+    name: 'Blazer Ligne Noir',
+    category: 'Sastrería',
+    collection: 'Signature',
+    price: 139000000,
+    image: '/images/garments/blazer-ligne.webp',
+    description:
+      'Sastrería que dibuja tu presencia. Una cintura definida, solapas precisas y una silueta depurada inspirada en nuestra nueva dirección editorial.',
+    material: 'Concepto: lana de sastrería con forro de viscosa.',
+    fit: 'Corte entallado. Manga larga. Cierre de un botón.',
+    featured: true,
+    active: true,
+    approved: false,
+    stock: 20,
+  },
+  {
+    id: 'p-echarpe',
+    slug: 'blusa-echarpe',
+    name: 'Blusa Écharpe Ivory',
+    category: 'Esenciales',
+    collection: 'Éditions',
+    price: 79000000,
+    image: '/images/garments/blusa-echarpe.webp',
+    description:
+      'La elegancia está en el movimiento. Cuello con pañuelo fluido, volumen delicado y un brillo suave que transforma cada gesto.',
+    material: 'Concepto: satén de seda de tacto suave.',
+    fit: 'Corte fluido. Pañuelo al cuello. Manga larga con puño.',
+    featured: true,
     active: true,
     approved: false,
     stock: 20,

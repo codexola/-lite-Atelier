@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef, useState, type PointerEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type PointerEvent } from 'react';
 import Image from 'next/image';
 import {
   ArrowLeft,
@@ -25,16 +25,27 @@ export function ProductGallery({
   product: Product;
   color: string;
 }) {
-  const reference = productMedia(product);
-  const views = reference
-    ? [
-        ...angles,
-        ...(color === reference.color
-          ? [{ id: 'piece', label: 'La pieza', subtitle: 'Sin modelo' }]
-          : []),
-      ]
-    : [{ id: 'piece', label: 'La pieza', subtitle: 'Vista original' }];
-  const [angle, setAngle] = useState(reference ? 'front' : 'piece');
+  const reference = useMemo(() => productMedia(product), [product]);
+  const customViews = product.gallery
+    ?.filter((g) => !g.color || g.color === color)
+    .map((g) => ({
+      id: g.angle,
+      label: g.label,
+      subtitle: g.color || 'Vista de la pieza',
+    }));
+  const views = customViews?.length
+    ? customViews
+    : reference
+      ? [
+          ...angles,
+          ...(color === reference.color
+            ? [{ id: 'piece', label: 'La pieza', subtitle: 'Sin modelo' }]
+            : []),
+        ]
+      : [{ id: 'piece', label: 'La pieza', subtitle: 'Vista original' }];
+  const [angle, setAngle] = useState(
+    customViews?.[0]?.id || (reference ? 'front' : 'piece'),
+  );
   const [hover, setHover] = useState(false);
   const [open, setOpen] = useState(false);
   const [scale, setScale] = useState(1);

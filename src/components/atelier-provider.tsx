@@ -1,5 +1,6 @@
 'use client';
 import { wornImage } from '@/lib/product-media';
+import { usePathname } from 'next/navigation';
 import {
   createContext,
   useContext,
@@ -57,6 +58,7 @@ export function useAtelier() {
   return store;
 }
 export function AtelierProvider({ children }: { children: ReactNode }) {
+  const staff = usePathname().startsWith('/admin');
   const [cart, setCart] = useState<CartItem[]>([]);
   const [ready, setReady] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
@@ -156,7 +158,7 @@ export function AtelierProvider({ children }: { children: ReactNode }) {
           </button>
         </div>
       )}
-      {ready && !consent && (
+      {ready && !consent && !staff && (
         <div className="cookie-banner">
           <div>
             <strong>Tu privacidad también es parte de tu identidad.</strong>

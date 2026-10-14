@@ -22,7 +22,6 @@ export function fitGrid(
   if (region !== 'upper') required.push(25, 26);
   if (region === 'lower' || region === 'full' || region === 'skirt')
     required.push(27, 28);
-  if (sleeves && region === 'upper') required.push(13, 14, 15, 16);
   if (
     width <= 0 ||
     height <= 0 ||
@@ -118,10 +117,28 @@ export function fitGrid(
       bottom = row(p(left === 11 ? 27 : 28), p(left === 11 ? 28 : 27), 1.8);
   }
   if (sleeves && region === 'upper') {
-    const elbowL = p(left === 11 ? 13 : 14),
-      elbowR = p(left === 11 ? 14 : 13),
-      wristL = p(left === 11 ? 15 : 16),
-      wristR = p(left === 11 ? 16 : 15);
+    const joint = (i: number, fallback: Point) =>
+      landmarks[i] &&
+      (landmarks[i].visibility ?? 1) > 0.3 &&
+      Number.isFinite(landmarks[i].x + landmarks[i].y)
+        ? p(i)
+        : fallback;
+    const elbowL = joint(left === 11 ? 13 : 14, {
+        x: shoulderL.x - shoulderWidth * 0.15,
+        y: shoulderL.y + torso * 0.55,
+      }),
+      elbowR = joint(left === 11 ? 14 : 13, {
+        x: shoulderR.x + shoulderWidth * 0.15,
+        y: shoulderR.y + torso * 0.55,
+      }),
+      wristL = joint(left === 11 ? 15 : 16, {
+        x: hipL.x - shoulderWidth * 0.22,
+        y: hipL.y,
+      }),
+      wristR = joint(left === 11 ? 16 : 15, {
+        x: hipR.x + shoulderWidth * 0.22,
+        y: hipR.y,
+      });
     const spread = (l: Point, r: Point, yOffset = 0): Point[] => {
       const center = mix(l, r, 0.5);
       const innerL = {

@@ -26,7 +26,7 @@ function secret() {
     });
   return new TextEncoder().encode(readFileSync(file, 'utf8'));
 }
-export async function session(user: User) {
+export async function session(user: User, staff = false) {
   const c = await db();
   const row = await c.execute({
     sql: 'SELECT session_version FROM users WHERE id=?',
@@ -35,26 +35,30 @@ export async function session(user: User) {
   const token = await new SignJWT({
     sub: user.id,
     version: Number(row.rows[0]?.session_version || 0),
+    scope: staff ? 'staff' : 'customer',
   })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
-    .setExpirationTime('7d')
+    .setExpirationTime(staff ? '8h' : '7d')
     .sign(secret());
-  (await cookies()).set('atelier_session', token, {
+  (await cookies()).set(staff ? 'atelier_staff' : 'atelier_session', token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
-    maxAge: 604800,
+    maxAge: staff ? 28800 : 604800,
   });
 }
-export async function currentUser(): Promise<User | null> {
-  const token = (await cookies()).get('atelier_session')?.value;
+export async function currentUser(staff = false): Promise<User | null> {
+  const token = (await cookies()).get(
+    staff ? 'atelier_staff' : 'atelier_session',
+  )?.value;
   if (!token) return null;
   try {
     const { payload } = await jwtVerify(token, secret(), {
       algorithms: ['HS256'],
     });
+    if (staff && payload.scope !== 'staff') return null;
     const c = await db();
     const result = await c.execute({
       sql: 'SELECT id,email,name,role,session_version FROM users WHERE id=?',
@@ -71,6 +75,13 @@ export async function currentUser(): Promise<User | null> {
   } catch {
     return null;
   }
+}
+export async function requireStaff(roles = ['admin', 'editor', 'operator']) {
+  const user = await currentUser(true);
+  if (!user) throw new HttpError(401, 'Inicia sesión en el acceso del equipo.');
+  if (!roles.includes(user.role))
+    throw new HttpError(403, 'No tienes acceso a esta función.');
+  return user;
 }
 export async function requireUser(roles?: string[]) {
   const user = await currentUser();
